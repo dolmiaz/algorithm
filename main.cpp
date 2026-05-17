@@ -62,6 +62,15 @@ template <class T> T floor_div(T a, T b) {
     return (a - (b - 1)) / b;
 }
 
+// ============== グリッド方向 ==============
+inline constexpr array<int, 4> DR4 = {-1, 1, 0, 0};
+inline constexpr array<int, 4> DC4 = {0, 0, 1, -1};
+inline constexpr array<char, 4> DIR4 = {'U', 'D', 'R', 'L'};
+inline constexpr array<char, 4> dir4 = {'u', 'd', 'r', 'l'};
+inline constexpr array<int, 8> DR8 = {-1, 1, 0, 0, -1, -1, 1, 1};
+inline constexpr array<int, 8> DC8 = {0, 0, 1, -1, 1, -1, 1, -1};
+inline const array<string, 8> DIR8 = {"U", "D", "R", "L", "UR", "UL", "DR", "DL"};
+inline const array<string, 8> dir8 = {"u", "d", "r", "l", "ur", "ul", "dr", "dl"};
 // ============== printヘルパ ==============
 template <class T> void print_one(const T &x) { cout << x; }
 template <class T, class... Ts> void print_one(const T &x, const Ts &...xs) {
