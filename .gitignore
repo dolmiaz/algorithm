@@ -1,0 +1,8 @@
+# MacOS
+.DS_Store
+
+# JetBrains
+.idea
+
+# C++ dependants
+CMakeLists.txt
