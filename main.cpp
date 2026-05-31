@@ -268,7 +268,8 @@ DFS_Info dfs_all(const Graph &g) {
 }
 // BFS
 struct BFS_Info {
-    V<int> dist, parent, order;
+    V<int> dist, parent;
+    V<int> order, source;
 };
 BFS_Info bfs(const Graph& g, int s) {
     const int n = static_cast<int>(g.size());
@@ -282,7 +283,7 @@ BFS_Info bfs(const Graph& g, int s) {
     q.push(s);
 
     while (!q.empty()) {
-        int v = q.front();
+        const int v = q.front();
         q.pop();
 
         for (const auto &e : g[v]) {
@@ -315,15 +316,76 @@ V<int> restore_path(const V<int> &parent, int s, int t) {
 
 }
 BFS_Info bfs_multi(const Graph& g, const vector<int>& starts) {
+    BFS_Info info;
 
+    queue<int> q;
+
+    for (auto &s : starts) {
+        if (info.dist[s] != -1) continue;
+
+        info.dist[s] = 0;
+        info.source[s] = s;
+        q.push(s);
+    }
+
+    while (!q.empty()) {
+        const int v = q.front();
+        q.pop();
+
+        for (auto &e : g[v]) {
+            const int to = e.to;
+
+            if (info.dist[to] != -1) continue;
+
+            info.dist[to] = info.dist[v] + 1;
+            info.parent[to] = v;
+            info.source[to] = info.source[v];
+            q.push(to);
+        }
+    }
+
+    return info;
 };
 struct CC_Info {
     vector<int> comp_id;
     vector<int> comp_size;
     int comp_cnt = 0;
 };
-CC_Info connected_components(const Graph& g);
-vector<int> restore_path(const vector<int>& parent, int s, int t);
+CC_Info connected_components(const Graph& g) {
+    CC_Info info;
+
+    const int n = static_cast<int>(g.size());
+
+    info.comp_id.assign(n, -1);
+
+    rep(s, n) {
+        queue<int> q;
+        q.push(s);
+        int sz = 0;
+
+        while (!q.empty()) {
+            const int v = q.front();
+            q.pop();
+            info.comp_id[v] = info.comp_cnt;
+
+            sz++;
+
+            for (const auto &e : g[v]) {
+                const int to = e.to;
+
+                if (info.comp_id[to] != -1) continue;
+
+                info.comp_id[to] = info.comp_cnt;
+                q.push(to);
+            }
+        }
+
+        info.comp_size.push_back(sz);
+        info.comp_cnt++;
+    }
+
+    return info;
+};
 
 // ============== 解答用 ==============
 #ifndef MULTI_TEST_CASES
