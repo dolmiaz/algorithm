@@ -202,16 +202,17 @@ struct Edge {
     int to;
     ll w;
     Edge() : to{0}, w{1} {};
-    Edge(int _to, ll _w): to{_to}, w(_w) {};
+    Edge(const int _to, const ll _w): to{_to}, w(_w) {};
 };
 using Graph = V<V<Edge>>;
-void add_edge(Graph &g, int a, int b, ll w = 1, bool undirected = true) {
+void add_edge(Graph &g, int a, int b, ll w = 1, const bool undirected = true) {
     g[a].emplace_back(b, w);
     if (undirected) {
         g[b].emplace_back(a, w);
     }
 };
-Graph read_graph(int n, int m, bool undirected = true, bool weighted = false, bool one_indexed = true) {
+Graph read_graph(const int n, const int m, const bool undirected = true,
+    const bool weighted = false, const bool one_indexed = true) {
     Graph g(n);
     int a, b;
     ll w = 1;
@@ -267,48 +268,62 @@ DFS_Info dfs_all(const Graph &g) {
 }
 // BFS
 struct BFS_Info {
-    V<int> used, parent, dist, comp_id, order;
-    int comp_cnt = 0;
+    V<int> dist, parent, order;
 };
-// 
-BFS_Info bfs_all(const Graph &g) {
+BFS_Info bfs(const Graph& g, int s) {
+    const int n = static_cast<int>(g.size());
+
     BFS_Info info;
-    int n = static_cast<int>(g.size());
-    info.used.assign(n, 0);
-    info.parent.assign(n, -1);
     info.dist.assign(n, -1);
-    info.comp_id.assign(n, -1);
-    info.order.reserve(n);
+    info.parent.assign(n, -1);
 
     queue<int> q;
+    info.dist[s] = 0;
+    q.push(s);
 
-    for (int v = 0; v < n; v++) {
-        if (info.used[v]) continue;
+    while (!q.empty()) {
+        int v = q.front();
+        q.pop();
 
-        q.push(v);
-        info.used[v] = 1;
-        info.dist[v] = 0;
-        info.comp_id[v] = info.comp_cnt;
-        while (!q.empty()) {
-            int u = q.front();
-            q.pop();
-            info.order.push_back(u);
+        for (const auto &e : g[v]) {
+            int to = e.to;
+            if (info.dist[to] != -1) continue;
 
-            for (auto e : g[u]) {
-                if (info.used[e.to]) continue;
-
-                info.used[e.to] = 1;
-                info.parent[e.to] = u;
-                info.dist[e.to] = info.dist[u] + 1;
-                info.comp_id[e.to] = info.comp_cnt;
-                q.push(e.to);
-            }
+            info.dist[to] = info.dist[v] + 1;
+            info.parent[to] = v;
+            q.push(to);
         }
-        info.comp_cnt++;
     }
-    return info;
-}
 
+    return info;
+};
+V<int> restore_path(const V<int> &parent, int s, int t) {
+    V<int> path;
+
+    if (s == t) return {s};
+    if (parent[t] == -1) return {};
+
+    for (int v = t; v != -1; v = parent[t]) {
+        path.push_back(v);
+        if (v == s) break;
+    }
+
+    if (path.back() != s) return {};
+
+    reverse(all(path));
+    return path;
+
+}
+BFS_Info bfs_multi(const Graph& g, const vector<int>& starts) {
+
+};
+struct CC_Info {
+    vector<int> comp_id;
+    vector<int> comp_size;
+    int comp_cnt = 0;
+};
+CC_Info connected_components(const Graph& g);
+vector<int> restore_path(const vector<int>& parent, int s, int t);
 
 // ============== 解答用 ==============
 #ifndef MULTI_TEST_CASES
