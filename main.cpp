@@ -2,6 +2,7 @@
 #include <bits/stdc++.h>
 #include <set>
 #include <random>
+#include <unordered_set>
 using namespace std;
 
 // ============== 基本型 ==============
@@ -15,18 +16,18 @@ using pii = pair<int, int>;
 using pll = pair<ll, ll>;
 
 // ============== 定数 ==============
-constexpr double PI = 3.141592653589793238L;
+constexpr ld PI = 3.141592653589793238L;
 constexpr int INF = 1073741823;
 constexpr ll INF_L = (1LL << 60);
 const string ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const string abc = "abcdefghijklmnopqrstuvwxyz";
-int modNum = 998244353;
+constexpr ll modNum = 998244353;
 
 // ============== マクロ ==============
-#define rep(i, n) for (int i = 0; i < n; i++)
-#define rep1(i, n) for (int i = 1; i <= n; i++)
-#define rrep(i, n) for (int i = n - 1; i >= 0; i--)
-#define rrep1(i, n) for (int i = n; i >= 1; i--)
+#define rep(i, n) for (int i = 0, i##_n = static_cast<int>(n); i < i##_n; i++)
+#define rep1(i, n) for (int i = 1, i##_n = static_cast<int>(n); i <= i##_n; i++)
+#define rrep(i, n) for (int i = static_cast<int>(n) - 1; i >= 0; i--)
+#define rrep1(i, n) for (int i = static_cast<int>(n); i >= 1; i--)
 #define all(x) begin(x), end(x)
 #define rall(x) rbegin(x), rend(x)
 
@@ -77,12 +78,16 @@ template <class T, class... Ts> void print_one(const T &x, const Ts &...xs) {
     cout << x << ' ';
     print_one(xs...);
 }
-template <class... Ts> void println(const Ts &...xs) {
-    print_one(xs...);
+inline void println() {
+    cout << '\n';
+}
+template <class T, class... Ts> void println(const T &x, const Ts &...xs) {
+    cout << x;
+    ((cout << ' ' << xs), ...);
     cout << '\n';
 }
 template <class T> void printAll(const V<T> &t) {
-    rep(i, t.size()) cout << t[i] << endl;
+    rep(i, t.size()) cout << t[i] << '\n';
 }
 inline void yes(const bool c = true) { cout << (c ? "Yes" : "No") << '\n'; }
 inline void YES(const bool c = true) { cout << (c ? "YES" : "NO") << '\n'; }
@@ -109,7 +114,7 @@ template <class F> y_combinator<F> yc(F &&f) { return {std::forward<F>(f)}; }
 // 1D --- 0, s[1], s[2], ...型
 template <class T> V<T> prefix_sum_1d(const V<T> &vec) {
     const int n = static_cast<int>(vec.size());
-    V<T> ps(n + 1, 0);
+    V<T> ps(n + 1, T{});
     rep(i, n) ps[i + 1] = ps[i] + vec[i];
 
     return ps;
@@ -156,26 +161,23 @@ template <class T, class F> int binary_search_index(const V<F> &vec, T x) {
     if (pos < static_cast<int>(vec.size()) && vec[pos] == x) return pos;
     return -1;
 }
-template <class T> int lower_bound_index(const V<T>& vec, int l, int r, T x) {
-    auto it = lower_bound(vec.begin() + l, vec.begin() + r + 1, x);
-    if (it == vec.begin() + r + 1) return -1;
-    return static_cast<int>(it - vec.begin());
-}
-template <class T> int last_less_index(const V<T>& vec, int l, int r, T x) {
-    auto it = lower_bound(vec.begin() + l, vec.begin() + r + 1, x);
-    if (it == vec.begin() + l) return -1;
-    --it;
-    return static_cast<int>(it - vec.begin());
-}
-template <class T> int upper_bound_index(const V<T>& vec, int l, int r, T x) {
-    auto it = upper_bound(vec.begin() + l, vec.begin() + r + 1, x);
-    if (it == vec.begin() + r + 1) return -1;
-    return static_cast<int>(it - vec.begin());
+template <class T>
+int first_ge(const V<T>& a, T x) {
+    return lower_bound(all(a), x) - a.begin();
 }
 template <class T>
-int last_greater_index(const V<T>& vec, int l, int r, const T& x) {
-    if (upper_bound(vec.begin() + l, vec.begin() + r + 1, x) == vec.begin() + r + 1) return -1;
-    return r;
+int first_gt(const V<T>& a, T x) {
+    return upper_bound(all(a), x) - a.begin();
+}
+template <class T>
+int last_lt(const V<T>& a, T x) {
+    int p = lower_bound(all(a), x) - a.begin();
+    return p - 1;
+}
+template <class T>
+int last_le(const V<T>& a, T x) {
+    int p = upper_bound(all(a), x) - a.begin();
+    return p - 1;
 }
 template <class T, class F> T binary_search_min(T ok, T ng, F pred) {
     while (abs(ok - ng) > 1) {
@@ -254,7 +256,7 @@ DFS_Info dfs_all(const Graph &g) {
             if (info.used[e.to]) continue;
             self(e.to, v);
         }
-        info.tout[v] = ++info.timer;
+        info.tout[v] = info.timer;
     });
     for (int v = 0; v < n; v++) {
         if (info.used[v]) continue;
@@ -268,6 +270,7 @@ struct BFS_Info {
     V<int> used, parent, dist, comp_id, order;
     int comp_cnt = 0;
 };
+// 
 BFS_Info bfs_all(const Graph &g) {
     BFS_Info info;
     int n = static_cast<int>(g.size());
@@ -306,6 +309,7 @@ BFS_Info bfs_all(const Graph &g) {
     return info;
 }
 
+
 // ============== 解答用 ==============
 #ifndef MULTI_TEST_CASES
 #define MULTI_TEST_CASES 0
@@ -316,6 +320,8 @@ void solve() {
 }
 
 int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
 #if MULTI_TEST_CASES
     int T;
     if (!(cin >> T))
