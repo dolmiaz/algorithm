@@ -531,16 +531,7 @@ Dijkstra_Info dijkstra(const Graph &graph, int s) {
 #endif
 
 void solve() {
-    int N, M;
-    cin >> N >> M;
 
-    Graph g = read_graph(N, M, true, true, true);
-    const auto info = dijkstra(g, 1);
-
-    rep(i, N) {
-        if (info.dist[i] == INF_L) cout << -1 << '\n';
-        else cout << info.dist[i] << '\n';
-    }
 }
 
 int main() {
