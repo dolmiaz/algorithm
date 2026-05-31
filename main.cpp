@@ -201,45 +201,89 @@ template <class T, class F> T binary_search_max(T ok, T ng, F pred) {
 struct Edge {
     int to;
     ll w;
-    Edge() : to{0}, w{1} {};
-    Edge(const int _to, const ll _w): to{_to}, w(_w) {};
+    Edge() : to(0), w(1) {}
+    Edge(int _to, ll _w = 1) : to(_to), w(_w) {}
 };
-using Graph = V<V<Edge>>;
-void add_edge(Graph &g, int a, int b, ll w = 1, const bool undirected = true) {
-    g[a].emplace_back(b, w);
-    if (undirected) {
-        g[b].emplace_back(a, w);
+
+struct Graph {
+    V<V<Edge>> graph;
+    bool undirected = true;
+    bool weighted = false;
+    bool one_indexed = true;
+
+    Graph() = default;
+
+    explicit Graph(const int n, const bool _undirected = true, const bool _weighted = false, const bool _one_indexed = true)
+        : graph(n),
+          undirected(_undirected),
+          weighted(_weighted),
+          one_indexed(_one_indexed) {}
+
+    [[nodiscard]] int size() const {
+        return static_cast<int>(graph.size());
+    }
+
+    [[nodiscard]] int to_internal(int v) const {
+        return one_indexed ? v - 1 : v;
+    }
+
+    [[nodiscard]] int to_external(int v) const {
+        return one_indexed ? v + 1 : v;
     }
 };
-Graph read_graph(const int n, const int m, const bool undirected = true,
-    const bool weighted = false, const bool one_indexed = true) {
-    Graph g(n);
-    int a, b;
-    ll w = 1;
+
+void add_edge_internal(Graph &g, int a, int b, ll w = 1) {
+    g.graph[a].emplace_back(b, w);
+    if (g.undirected) {
+        g.graph[b].emplace_back(a, w);
+    }
+}
+
+void add_edge(Graph &g, int a, int b, ll w = 1) {
+    a = g.to_internal(a);
+    b = g.to_internal(b);
+    add_edge_internal(g, a, b, w);
+}
+
+Graph read_graph(
+    const int n,
+    const int m,
+    const bool undirected = true,
+    const bool weighted = false,
+    const bool one_indexed = true
+) {
+    Graph g(n, undirected, weighted, one_indexed);
+
     rep(_, m) {
+        int a, b;
+        ll w = 1;
+
         if (weighted) {
             cin >> a >> b >> w;
         } else {
             cin >> a >> b;
         }
-        if (one_indexed) {
-            a--;
-            b--;
-        }
-        add_edge(g, a, b, w, undirected);
+
+        add_edge(g, a, b, w);
     }
+
     return g;
 }
 
 // ============== グラフアルゴリズム ==============
-// DFS
+// ============== DFS ==============
 struct DFS_Info {
     V<int> used, parent, tin, tout, comp_id, order;
-    int comp_cnt = 0, timer = 0;
+    int comp_cnt = 0;
+    int timer = 0;
 };
-DFS_Info dfs_all(const Graph &g) {
+
+DFS_Info dfs_all(const Graph &graph) {
     DFS_Info info;
-    int n = static_cast<int>(g.size());
+
+    const auto &g = graph.graph;
+    const int n = graph.size();
+
     info.used.assign(n, 0);
     info.parent.assign(n, -1);
     info.tin.assign(n, -1);
@@ -253,74 +297,112 @@ DFS_Info dfs_all(const Graph &g) {
         info.tin[v] = info.timer++;
         info.comp_id[v] = info.comp_cnt;
         info.order.push_back(v);
-        for (auto e : g[v]) {
-            if (info.used[e.to]) continue;
-            self(e.to, v);
+
+        for (const auto &e : g[v]) {
+            const int to = e.to;
+            if (info.used[to]) continue;
+            self(to, v);
         }
+
         info.tout[v] = info.timer;
     });
-    for (int v = 0; v < n; v++) {
+
+    rep(v, n) {
         if (info.used[v]) continue;
         dfs(v, -1);
         info.comp_cnt++;
     }
+
     return info;
 }
-// BFS
+// ============== BFS ==============
 struct BFS_Info {
     V<int> dist, parent;
     V<int> order, source;
 };
-BFS_Info bfs(const Graph& g, int s) {
-    const int n = static_cast<int>(g.size());
 
+BFS_Info bfs(const Graph &graph, int s) {
     BFS_Info info;
+
+    const auto &g = graph.graph;
+    const int n = graph.size();
+
+    s = graph.to_internal(s);
+
     info.dist.assign(n, -1);
     info.parent.assign(n, -1);
+    info.source.assign(n, -1);
+    info.order.reserve(n);
 
     queue<int> q;
+
     info.dist[s] = 0;
+    info.source[s] = s;
     q.push(s);
 
     while (!q.empty()) {
         const int v = q.front();
         q.pop();
 
+        info.order.push_back(v);
+
         for (const auto &e : g[v]) {
-            int to = e.to;
+            const int to = e.to;
             if (info.dist[to] != -1) continue;
 
             info.dist[to] = info.dist[v] + 1;
             info.parent[to] = v;
+            info.source[to] = info.source[v];
+
             q.push(to);
         }
     }
 
     return info;
-};
-V<int> restore_path(const V<int> &parent, int s, int t) {
+}
+V<int> restore_path(const Graph &graph, const V<int> &parent, int s, int t) {
     V<int> path;
 
-    if (s == t) return {s};
-    if (parent[t] == -1) return {};
+    s = graph.to_internal(s);
+    t = graph.to_internal(t);
 
-    for (int v = t; v != -1; v = parent[t]) {
-        path.push_back(v);
-        if (v == s) break;
+    if (s == t) {
+        path.push_back(s);
+    } else {
+        if (parent[t] == -1) return {};
+
+        for (int v = t; v != -1; v = parent[v]) {
+            path.push_back(v);
+            if (v == s) break;
+        }
+
+        if (path.back() != s) return {};
+
+        reverse(all(path));
     }
 
-    if (path.back() != s) return {};
+    for (auto &v : path) {
+        v = graph.to_external(v);
+    }
 
-    reverse(all(path));
     return path;
-
 }
-BFS_Info bfs_multi(const Graph& g, const vector<int>& starts) {
+BFS_Info bfs_multi(const Graph &graph, const V<int> &starts) {
     BFS_Info info;
+
+    const auto &g = graph.graph;
+    const int n = graph.size();
+
+    info.dist.assign(n, -1);
+    info.parent.assign(n, -1);
+    info.source.assign(n, -1);
+    info.order.reserve(n);
 
     queue<int> q;
 
-    for (auto &s : starts) {
+    for (int s : starts) {
+        s = graph.to_internal(s);
+
         if (info.dist[s] != -1) continue;
 
         info.dist[s] = 0;
@@ -332,7 +414,9 @@ BFS_Info bfs_multi(const Graph& g, const vector<int>& starts) {
         const int v = q.front();
         q.pop();
 
-        for (auto &e : g[v]) {
+        info.order.push_back(v);
+
+        for (const auto &e : g[v]) {
             const int to = e.to;
 
             if (info.dist[to] != -1) continue;
@@ -340,33 +424,40 @@ BFS_Info bfs_multi(const Graph& g, const vector<int>& starts) {
             info.dist[to] = info.dist[v] + 1;
             info.parent[to] = v;
             info.source[to] = info.source[v];
+
             q.push(to);
         }
     }
 
     return info;
-};
+}
+// ============== 連結成分 ==============
 struct CC_Info {
-    vector<int> comp_id;
-    vector<int> comp_size;
+    V<int> comp_id;
+    V<int> comp_size;
     int comp_cnt = 0;
 };
-CC_Info connected_components(const Graph& g) {
+
+CC_Info connected_components(const Graph &graph) {
     CC_Info info;
 
-    const int n = static_cast<int>(g.size());
+    const auto &g = graph.graph;
+    const int n = graph.size();
 
     info.comp_id.assign(n, -1);
 
     rep(s, n) {
+        if (info.comp_id[s] != -1) continue;
+
         queue<int> q;
         q.push(s);
+        info.comp_id[s] = info.comp_cnt;
+
         int sz = 0;
 
         while (!q.empty()) {
             const int v = q.front();
             q.pop();
-            info.comp_id[v] = info.comp_cnt;
 
             sz++;
 
@@ -385,7 +476,54 @@ CC_Info connected_components(const Graph& g) {
     }
 
     return info;
+}
+// ============== Dijkstra ==============
+struct Dijkstra_Info {
+    V<ll> dist;
+    V<int> parent;
+    V<int> order;
 };
+
+Dijkstra_Info dijkstra(const Graph &graph, int s) {
+    Dijkstra_Info info;
+
+    const auto &g = graph.graph;
+    const int n = graph.size();
+
+    s = graph.to_internal(s);
+
+    info.dist.assign(n, INF_L);
+    info.parent.assign(n, -1);
+    info.order.reserve(n);
+
+    minpq<pair<ll, int>> pq;
+
+    info.dist[s] = 0;
+    pq.emplace(0, s);
+
+    while (!pq.empty()) {
+        const auto [d, v] = pq.top();
+        pq.pop();
+
+        if (d != info.dist[v]) continue;
+
+        info.order.push_back(v);
+
+        for (const auto &e : g[v]) {
+            const int to = e.to;
+            const ll nd = info.dist[v] + e.w;
+
+            if (info.dist[to] <= nd) continue;
+
+            info.dist[to] = nd;
+            info.parent[to] = v;
+
+            pq.emplace(nd, to);
+        }
+    }
+
+    return info;
+}
 
 // ============== 解答用 ==============
 #ifndef MULTI_TEST_CASES
@@ -393,7 +531,16 @@ CC_Info connected_components(const Graph& g) {
 #endif
 
 void solve() {
+    int N, M;
+    cin >> N >> M;
 
+    Graph g = read_graph(N, M, true, true, true);
+    const auto info = dijkstra(g, 1);
+
+    rep(i, N) {
+        if (info.dist[i] == INF_L) cout << -1 << '\n';
+        else cout << info.dist[i] << '\n';
+    }
 }
 
 int main() {

@@ -1,6 +1,6 @@
 # C++ Competitive Programming Template
 
-競技プログラミング用の `main.cpp` です。基本型、入出力補助、数値処理、グリッド方向定数、累積和、二分探索、グラフ構築、DFS/BFS、再帰ラムダ、解答用スケルトンをまとめています。
+競技プログラミング用の `main.cpp` です。基本型、入出力補助、数値処理、グリッド方向定数、累積和、二分探索、グラフ構築、DFS/BFS、連結成分、Dijkstra、再帰ラムダ、解答用スケルトンをまとめています。
 
 ## Environment
 
@@ -140,14 +140,21 @@ auto dfs = yc([&](auto self, int v, int p) -> void {
 
 重み付きグラフを扱うためのテンプレートです。重みなしグラフも、重み `1` のグラフとして扱います。
 
+`Graph` が `undirected`、`weighted`、`one_indexed` の設定を持ち、入力や `add_edge` で使う頂点番号をグラフ側で内部表現に変換します。`one_indexed = true` の場合は外部入力を 1-indexed として受け取り、内部では 0-indexed で保持します。`one_indexed = false` の場合は入力をそのまま 0-indexed として扱います。
+
 | Name | Description |
 | --- | --- |
 | `Edge` | 行き先 `to` と重み `w` を持つ辺 |
-| `Graph` | `vector<vector<Edge>>` |
-| `add_edge(g, a, b, w, undirected)` | 辺を追加。デフォルトは無向辺 |
+| `Graph` | 隣接リスト `graph` と、無向/有向・重み付き・index設定を持つ構造体 |
+| `Graph(n, undirected, weighted, one_indexed)` | 頂点数とグラフ設定を指定して構築 |
+| `g.size()` | 頂点数を返す |
+| `g.to_internal(v)` | 外部の頂点番号を内部の 0-indexed に変換 |
+| `g.to_external(v)` | 内部の 0-indexed を外部の頂点番号に戻す |
+| `add_edge(g, a, b, w)` | グラフ設定に従って頂点番号を変換し、辺を追加 |
+| `add_edge_internal(g, a, b, w)` | 内部の 0-indexed 頂点番号で辺を追加 |
 | `read_graph(n, m, undirected, weighted, one_indexed)` | 入力からグラフを構築 |
 
-`read_graph` はデフォルトで 1-indexed 入力を 0-indexed に変換します。
+`read_graph` はデフォルトで、無向・重みなし・1-indexed 入力として読み込みます。重み付きグラフでは `weighted = true` を指定します。
 
 ### Graph Algorithms
 
@@ -155,19 +162,27 @@ auto dfs = yc([&](auto self, int v, int p) -> void {
 | --- | --- |
 | `DFS_Info` | DFSの訪問情報、親、入出時刻、連結成分ID、訪問順を保持 |
 | `dfs_all(g)` | 全頂点を対象にDFSし、連結成分も数える |
-| `BFS_Info` | BFSの訪問情報、親、距離、連結成分ID、訪問順を保持 |
-| `bfs_all(g)` | 全頂点を対象にBFSし、連結成分も数える |
+| `BFS_Info` | BFSの距離、親、訪問順、探索元を保持 |
+| `bfs(g, s)` | 単一起点BFSを行う |
+| `bfs_multi(g, starts)` | 複数始点BFSを行う |
+| `restore_path(g, parent, s, t)` | BFSやDijkstraの `parent` から `s` から `t` への経路を復元 |
+| `CC_Info` | 連結成分ID、各成分サイズ、成分数を保持 |
+| `connected_components(g)` | グラフ全体の連結成分を数える |
+| `Dijkstra_Info` | Dijkstraの最短距離、親、確定順を保持 |
+| `dijkstra(g, s)` | 重み付きグラフの単一起点最短路を求める |
 
-`DFS_Info::tin` / `tout` はDFS順の時刻です。`BFS_Info::dist` は各連結成分の始点からの距離で、連結成分ごとに `0` から始まります。
+`DFS_Info::tin` / `tout` はDFS順の時刻です。`BFS_Info::dist` は始点からの辺数で、到達不能な頂点は `-1` です。`Dijkstra_Info::dist` は始点からの最短距離で、到達不能な頂点は `INF_L` です。
+
+`bfs`、`bfs_multi`、`dijkstra` の始点や、`restore_path` の `s` / `t` は `Graph::one_indexed` の設定に従って解釈されます。`restore_path` の戻り値も同じ外部indexに戻して返します。
 
 ## Solution Skeleton
 
-`main.cpp` の末尾には、問題ごとに書き換えるための最小限の解答用スケルトンが含まれています。
+`main.cpp` の末尾には、問題ごとに書き換えるための解答用スケルトンが含まれています。現在の `solve()` は、重み付き無向グラフを読み込んで頂点 `1` からのDijkstraを実行し、各頂点への最短距離を出力する形になっています。
 
 | Name | Description |
 | --- | --- |
 | `MULTI_TEST_CASES` | 複数テストケースを使うかどうかのコンパイル時フラグ |
-| `solve()` | 問題ごとの実装を書く関数 |
+| `solve()` | 問題ごとの実装を書く関数。現在はDijkstraの使用例を含む |
 | `main()` | `MULTI_TEST_CASES` に応じて `solve()` を1回または `T` 回呼び出す |
 
 デフォルトでは `MULTI_TEST_CASES` は `0` です。複数テストケース形式の問題では、コンパイル時に `-DMULTI_TEST_CASES=1` を指定します。
@@ -184,9 +199,17 @@ g++ -std=gnu++17 -O2 -Wall -Wextra main.cpp -o main
 g++ -std=gnu++17 -O2 -Wall -Wextra -DMULTI_TEST_CASES=1 main.cpp -o main
 ```
 
+## Recent Graph Updates
+
+- BFSを単一起点 `bfs` と複数始点 `bfs_multi` に整理しました。
+- `restore_path` を追加し、`parent` 配列から経路を復元できるようにしました。
+- `connected_components` を追加し、連結成分数と各頂点の成分ID、成分サイズを取れるようにしました。
+- `Graph` が `one_indexed` 設定を持つようにし、1-indexed / 0-indexed の切り替えをグラフ側で扱えるようにしました。
+- `dijkstra` を追加し、重み付きグラフの単一起点最短路を求められるようにしました。
+
 ## Notes
 
-- 配列やベクタは、関数によって 0-indexed と 1-indexed の前提が混在しています。
+- グラフの外部indexは `Graph::one_indexed` に従います。アルゴリズム内部の配列添字は 0-indexed です。
 - 二分探索補助は、対象区間がソート済みであることを前提にしています。
 - `LOCAL` やデバッグ出力を追加する場合は、提出先に応じて出力先や制限時間を確認してください。
-- `solve()` は空の状態なので、問題ごとに実装してください。
+- `solve()` は問題ごとに書き換えて使ってください。
