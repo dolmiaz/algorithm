@@ -64,14 +64,14 @@ template <class T> T floor_div(T a, T b) {
 }
 
 // ============== グリッド方向 ==============
-inline constexpr array<int, 4> DR4 = {-1, 1, 0, 0};
-inline constexpr array<int, 4> DC4 = {0, 0, 1, -1};
-inline constexpr array<char, 4> DIR4 = {'U', 'D', 'R', 'L'};
-inline constexpr array<char, 4> dir4 = {'u', 'd', 'r', 'l'};
-inline constexpr array<int, 8> DR8 = {-1, 1, 0, 0, -1, -1, 1, 1};
-inline constexpr array<int, 8> DC8 = {0, 0, 1, -1, 1, -1, 1, -1};
-inline const array<string, 8> DIR8 = {"U", "D", "R", "L", "UR", "UL", "DR", "DL"};
-inline const array<string, 8> dir8 = {"u", "d", "r", "l", "ur", "ul", "dr", "dl"};
+inline constexpr array<int, 4> DR4 = {-1, 0, 1, 0};
+inline constexpr array<int, 4> DC4 = {0, 1, 0, -1};
+inline constexpr array<char, 4> DIR4 = {'U', 'R', 'D', 'L'};
+inline constexpr array<char, 4> dir4 = {'u', 'r', 'd', 'l'};
+inline constexpr array<int, 8> DR8 = {-1, -1, 0, 1, 1,  1, 0, -1};
+inline constexpr array<int, 8> DC8 = { 0,  1, 1, 1, 0, -1, -1, -1};
+inline const array<string, 8> DIR8 = {"U", "UR", "R", "DR", "D", "DL", "L", "UL"};
+inline const array<string, 8> dir8 = {"u", "ur", "r", "dr", "d", "dl", "l", "ul"};
 // ============== printヘルパ ==============
 template <class T> void print_one(const T &x) { cout << x; }
 template <class T, class... Ts> void print_one(const T &x, const Ts &...xs) {
@@ -531,7 +531,7 @@ Dijkstra_Info dijkstra(const Graph &graph, int s) {
 #endif
 
 void solve() {
-    
+
 }
 
 int main() {
