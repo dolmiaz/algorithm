@@ -26,7 +26,7 @@ using pll = pair<ll, ll>;
 
 // ============== 定数 ==============
 constexpr ld PI = 3.141592653589793238L;
-constexpr int INF = 1073741823;
+constexpr int INF = (1 << 30) - 1;
 constexpr ll INF_L = (1LL << 60);
 const string ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const string abc = "abcdefghijklmnopqrstuvwxyz";
