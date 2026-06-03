@@ -223,23 +223,23 @@ struct Graph {
         return static_cast<int>(graph.size());
     }
 
-    [[nodiscard]] int to_internal(int v) const {
+    [[nodiscard]] int to_internal(const int v) const {
         return one_indexed ? v - 1 : v;
     }
 
-    [[nodiscard]] int to_external(int v) const {
+    [[nodiscard]] int to_external(const int v) const {
         return one_indexed ? v + 1 : v;
     }
 };
 
-void add_edge_internal(Graph &g, int a, int b, ll w = 1) {
+void add_edge_internal(Graph &g, const int a, const int b, const ll w = 1) {
     g.graph[a].emplace_back(b, w);
     if (g.undirected) {
         g.graph[b].emplace_back(a, w);
     }
 }
 
-void add_edge(Graph &g, int a, int b, ll w = 1) {
+void add_edge(Graph &g, int a, int b, const ll w = 1) {
     a = g.to_internal(a);
     b = g.to_internal(b);
     add_edge_internal(g, a, b, w);
@@ -291,7 +291,7 @@ DFS_Info dfs_all(const Graph &graph) {
     info.comp_id.assign(n, -1);
     info.order.reserve(n);
 
-    auto dfs = yc([&](auto self, int v, int p) -> void {
+    const auto dfs = yc([&](auto self, int v, const int p) -> void {
         info.used[v] = 1;
         info.parent[v] = p;
         info.tin[v] = info.timer++;
