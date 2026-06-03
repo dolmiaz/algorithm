@@ -1,9 +1,19 @@
-#include <iostream>
+#include <algorithm>
+#include <array>
 #include <bits/stdc++.h>
-#include <set>
-#include <random>
-#include <unordered_set>
+#include <cmath>
+#include <functional>
+#include <iostream>
+#include <limits>
+#include <queue>
+#include <string>
+#include <utility>
+#include <vector>
 using namespace std;
+
+// ===== bundled from library/basic.hpp =====
+// Basic aliases, constants, and macros for C++17 competitive programming.
+
 
 // ============== 基本型 ==============
 using ll = long long;
@@ -18,7 +28,7 @@ using pll = pair<ll, ll>;
 // ============== 定数 ==============
 constexpr ld PI = 3.141592653589793238L;
 constexpr int INF = (1 << 30) - 1;
-constexpr ll INF_L = 1LL << 60;
+constexpr ll INF_L = (1LL << 60);
 const string ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const string abc = "abcdefghijklmnopqrstuvwxyz";
 constexpr ll modNum = 998244353;
@@ -30,6 +40,236 @@ constexpr ll modNum = 998244353;
 #define rrep1(i, n) for (int i = static_cast<int>(n); i >= 1; i--)
 #define all(x) begin(x), end(x)
 #define rall(x) rbegin(x), rend(x)
+
+// ===== bundled from library/grid.hpp =====
+// Grid direction constants and small helpers for grid traversal.
+
+
+// ============== グリッド方向 ==============
+inline constexpr array<int, 4> DR4 = {-1, 0, 1, 0};
+inline constexpr array<int, 4> DC4 = {0, 1, 0, -1};
+inline constexpr array<char, 4> DIR4 = {'U', 'R', 'D', 'L'};
+inline constexpr array<char, 4> dir4 = {'u', 'r', 'd', 'l'};
+inline constexpr array<int, 8> DR8 = {-1, -1, 0, 1, 1,  1, 0, -1};
+inline constexpr array<int, 8> DC8 = { 0,  1, 1, 1, 0, -1, -1, -1};
+inline const array<string, 8> DIR8 = {"U", "UR", "R", "DR", "D", "DL", "L", "UL"};
+inline const array<string, 8> dir8 = {"u", "ur", "r", "dr", "d", "dl", "l", "ul"};
+
+inline bool in_grid(const int i, const int j, const int H, const int W) {
+    return 0 <= i && i < H && 0 <= j && j < W;
+}
+
+struct Grid {
+    int H{}, W{};
+    V<string> cell;
+    V<string> v, h;
+    char block = '#';
+    char wall = '1';
+
+    Grid() = default;
+
+    Grid(const int H_, const int W_, const char block_ = '#', const char wall_ = '1'):
+    H(H_), W(W_),
+    cell(H, string(W, '.')),
+    v(H, string(max(0, W - 1), '0')),
+    h(max(0, H - 1), string(W, '0')),
+    block(block_), wall(wall_) {}
+
+    Grid(
+        const int H_,
+        const int W_,
+        const V<string> &v_,
+        const V<string> &h_,
+        const char block_ = '#',
+        const char wall_ = '1'
+    ):  H(H_), W(W_),
+        cell(H_, string(W_, '.')),
+        v(v_),
+        h(h_),
+        block(block_),
+        wall(wall_) {}
+
+    [[nodiscard]] bool in(const int i, const int j) const {
+        return in_grid(i, j, H, W);
+    }
+
+    [[nodiscard]] int id(const int i, const int j) const {
+        return i * W + j;
+    }
+
+    [[nodiscard]] pii rc(const int id) const {
+        return {id / W, id % W};
+    }
+
+    [[nodiscard]] bool is_block(const int i, const int j) const {
+        return cell[i][j] == block;
+    }
+
+    [[nodiscard]] bool passable(const int i, const int j) const {
+        return in(i, j) && !is_block(i, j);
+    }
+
+    [[nodiscard]] bool has_wall(const int i, const int j, const int d) const {
+        if (d == 0) {
+            if (i == 0) return true;
+            return h[i - 1][j] == wall;
+        }
+        if (d == 1) {
+            if (j == W - 1) return true;
+            return v[i][j] == wall;
+        }
+        if (d == 2) {
+            if (i == H - 1) return true;
+            return h[i][j] == wall;
+        }
+        if (d == 3) {
+            if (j == 0) return true;
+            return v[i][j - 1] == wall;
+        }
+        return true;
+    }
+
+    [[nodiscard]] bool can_go(const int i, const int j, const int d) const {
+        if (d < 0 || 4 <= d) return false;
+        if (!in(i, j)) return false;
+        if (has_wall(i, j, d)) return false;
+
+        const int ni = i + DR4[d];
+        const int nj = j + DC4[d];
+
+        return passable(ni, nj);
+    }
+
+    [[nodiscard]] V<pii> neighbors4(const int i, const int j) const {
+        V<pii> res;
+
+        rep(d, 4) {
+            if (!can_go(i, j, d)) continue;
+
+            const int ni = i + DR4[d];
+            const int nj = j + DC4[d];
+
+            res.emplace_back(ni, nj);
+        }
+
+        return res;
+    }
+};
+
+inline Grid read_grid(const char block = '#') {
+    int H, W;
+    cin >> H >> W;
+
+    Grid g(H, W, block);
+    rep(i, H) cin >> g.cell[i];
+
+    return g;
+}
+
+inline Grid read_grid_with_walls(const char wall = '1') {
+    int H, W;
+    cin >> H >> W;
+
+    Grid g(H, W, '#', wall);
+
+    rep(i, H) cin >> g.v[i];
+    rep(i, H - 1) cin >> g.h[i];
+
+    return g;
+}
+
+// ===== bundled from library/grid_search.hpp =====
+// Grid Algorithms.
+
+
+struct GridBFS_Info {
+    V<V<int>> dist;
+    V<V<pii>> parent;
+    V<V<int>> parent_dir;
+};
+
+inline GridBFS_Info grid_bfs(const Grid& g, const pair<int, int> s) {
+    GridBFS_Info info;
+
+    info.dist.assign(g.H, V<int>(g.W, -1));
+    info.parent.assign(g.H, V<pii>(g.W, {-1, -1}));
+    info.parent_dir.assign(g.H, V<int>(g.W, -1));
+
+    queue<pii> q;
+    info.dist[s.first][s.second] = 0;
+    q.push(s);
+
+    while (!q.empty()) {
+        auto [i, j] = q.front();
+        q.pop();
+
+        V<pii> neighbors = g.neighbors4(i, j);
+
+        for (const auto neighbor : neighbors) {
+            const auto [ni, nj] = neighbor;
+
+            if (info.dist[ni][nj] != -1) continue;
+
+            const int di = ni - i, dj = nj - j;
+            const int dir = (dj == 0 ? di + 1 : (dj == 1 ? 1 : 3));
+
+            info.dist[ni][nj] = info.dist[i][j] + 1;
+            info.parent[ni][nj] = {i, j};
+            info.parent_dir[ni][nj] = dir;
+
+            q.emplace(ni, nj);
+        }
+    }
+
+    return info;
+}
+
+inline V<pii> restore_grid_path(const V<V<pii>> &parent, const pii s, const pii t) {
+    V<pii> path;
+
+    pii now = t;
+
+    while (true) {
+        path.emplace_back(now);
+
+        if (now == s) break;
+
+        pii p = parent[now.first][now.second];
+
+        if (p == pii{-1, -1}) return {};
+
+        now = p;
+    }
+
+    reverse(all(path));
+    return path;
+}
+
+inline string restore_grid_moves4(const V<V<int>> &parent_dir, const pii s, const pii t) {
+    string moves;
+
+    pii now = t;
+
+    while (now != s) {
+        const int dir = parent_dir[now.first][now.second];
+
+        if (dir < 0 || dir >= 4) return "";
+
+        moves.push_back(DIR4[dir]);
+
+        const int pi = now.first - DR4[dir];
+        const int pj = now.second - DC4[dir];
+
+        now = {pi, pj};
+    }
+
+    reverse(all(moves));
+    return moves;
+}
+
+// ===== bundled from library/io.hpp =====
+// Small input/output and general utility helpers.
+
 
 // ============== ユーティリティ ==============
 template <class T, class U> bool chmin(T &a, const U &b) {
@@ -63,15 +303,6 @@ template <class T> T floor_div(T a, T b) {
     return (a - (b - 1)) / b;
 }
 
-// ============== グリッド方向 ==============
-inline constexpr array<int, 4> DR4 = {-1, 0, 1, 0};
-inline constexpr array<int, 4> DC4 = {0, 1, 0, -1};
-inline constexpr array<char, 4> DIR4 = {'U', 'R', 'D', 'L'};
-inline constexpr array<char, 4> dir4 = {'u', 'r', 'd', 'l'};
-inline constexpr array<int, 8> DR8 = {-1, -1, 0, 1, 1,  1, 0, -1};
-inline constexpr array<int, 8> DC8 = { 0,  1, 1, 1, 0, -1, -1, -1};
-inline const array<string, 8> DIR8 = {"U", "UR", "R", "DR", "D", "DL", "L", "UL"};
-inline const array<string, 8> dir8 = {"u", "ur", "r", "dr", "d", "dl", "l", "ul"};
 // ============== printヘルパ ==============
 template <class T> void print_one(const T &x) { cout << x; }
 template <class T, class... Ts> void print_one(const T &x, const Ts &...xs) {
@@ -101,6 +332,7 @@ template <class T> T tri0(T x) {
 template <class T> T tri1(T x) {
     return (x + 1) * x / 2;
 }
+
 // ============== 再帰ラムダ ==============
 template <class F> struct y_combinator {
     F f;
@@ -109,6 +341,10 @@ template <class F> struct y_combinator {
     }
 };
 template <class F> y_combinator<F> yc(F &&f) { return {std::forward<F>(f)}; }
+
+// ===== bundled from library/cumsum.hpp =====
+// One-dimensional and two-dimensional prefix sum helpers.
+
 
 // ============== 累積和 ==============
 // 1D --- 0, s[1], s[2], ...型
@@ -119,6 +355,11 @@ template <class T> V<T> prefix_sum_1d(const V<T> &vec) {
 
     return ps;
 }
+
+template <class T> T range_sum_1d(const V<T> &ps, const int l, const int r) {
+    return ps[r] - ps[l];
+}
+
 // 2D
 // 0 0       0       ...
 // 0 s[1][1] s[1][2] ...
@@ -138,6 +379,11 @@ template <class T> V<V<T>> prefix_sum_2d(const V<V<T>> &grid) {
 
     return ps;
 }
+
+template <class T> T range_sum_2d(const V<V<T>> &ps, const int r1, const int c1, const int r2, const int c2) {
+    return ps[r2][c2] - ps[r1][c2] - ps[r2][c1] + ps[r1][c1];
+}
+
 // 累積MAX
 // A[0], A[1], A[2], ..., A[N - 1]
 // lowest, L[0], L[1], L[2], ..., L[N - 1], lowest
@@ -154,6 +400,11 @@ template <class T> Prefix_Max_Info<T> prefix_max_1d(const V<T> &vec) {
     rrep(i, n) info.R[i + 1] = max(info.R[i + 2], vec[i]);
     return info;
 }
+
+// ===== bundled from library/binary_search.hpp =====
+// Binary search helpers for sorted containers and monotone predicates.
+
+
 // ============== 二分探索 ==============
 // return -> 0-indexed
 template <class T, class F> int binary_search_index(const V<F> &vec, T x) {
@@ -195,7 +446,10 @@ template <class T, class F> T binary_search_max(T ok, T ng, F pred) {
     }
     return ok;
 }
-// ============== DPテンプレ ==============
+
+// ===== bundled from library/graph.hpp =====
+// Graph data structures and input helpers.
+
 
 // ============== グラフテンプレ ==============
 struct Edge {
@@ -232,20 +486,20 @@ struct Graph {
     }
 };
 
-void add_edge_internal(Graph &g, const int a, const int b, const ll w = 1) {
+inline void add_edge_internal(Graph &g, const int a, const int b, const ll w = 1) {
     g.graph[a].emplace_back(b, w);
     if (g.undirected) {
         g.graph[b].emplace_back(a, w);
     }
 }
 
-void add_edge(Graph &g, int a, int b, const ll w = 1) {
+inline void add_edge(Graph &g, int a, int b, const ll w = 1) {
     a = g.to_internal(a);
     b = g.to_internal(b);
     add_edge_internal(g, a, b, w);
 }
 
-Graph read_graph(
+inline Graph read_graph(
     const int n,
     const int m,
     const bool undirected = true,
@@ -270,6 +524,10 @@ Graph read_graph(
     return g;
 }
 
+// ===== bundled from library/graph_search.hpp =====
+// DFS, BFS, path restoration, and connected-component helpers.
+
+
 // ============== グラフアルゴリズム ==============
 // ============== DFS ==============
 struct DFS_Info {
@@ -278,7 +536,7 @@ struct DFS_Info {
     int timer = 0;
 };
 
-DFS_Info dfs_all(const Graph &graph) {
+inline DFS_Info dfs_all(const Graph &graph) {
     DFS_Info info;
 
     const auto &g = graph.graph;
@@ -315,13 +573,14 @@ DFS_Info dfs_all(const Graph &graph) {
 
     return info;
 }
+
 // ============== BFS ==============
 struct BFS_Info {
     V<int> dist, parent;
     V<int> order, source;
 };
 
-BFS_Info bfs(const Graph &graph, int s) {
+inline BFS_Info bfs(const Graph &graph, int s) {
     BFS_Info info;
 
     const auto &g = graph.graph;
@@ -360,7 +619,8 @@ BFS_Info bfs(const Graph &graph, int s) {
 
     return info;
 }
-V<int> restore_path(const Graph &graph, const V<int> &parent, int s, int t) {
+
+inline V<int> restore_path(const Graph &graph, const V<int> &parent, int s, int t) {
     V<int> path;
 
     s = graph.to_internal(s);
@@ -387,7 +647,8 @@ V<int> restore_path(const Graph &graph, const V<int> &parent, int s, int t) {
 
     return path;
 }
-BFS_Info bfs_multi(const Graph &graph, const V<int> &starts) {
+
+inline BFS_Info bfs_multi(const Graph &graph, const V<int> &starts) {
     BFS_Info info;
 
     const auto &g = graph.graph;
@@ -431,6 +692,7 @@ BFS_Info bfs_multi(const Graph &graph, const V<int> &starts) {
 
     return info;
 }
+
 // ============== 連結成分 ==============
 struct CC_Info {
     V<int> comp_id;
@@ -438,7 +700,7 @@ struct CC_Info {
     int comp_cnt = 0;
 };
 
-CC_Info connected_components(const Graph &graph) {
+inline CC_Info connected_components(const Graph &graph) {
     CC_Info info;
 
     const auto &g = graph.graph;
@@ -477,6 +739,11 @@ CC_Info connected_components(const Graph &graph) {
 
     return info;
 }
+
+// ===== bundled from library/shortest_path.hpp =====
+// Shortest path algorithms for Graph.
+
+
 // ============== Dijkstra ==============
 struct Dijkstra_Info {
     V<ll> dist;
@@ -484,7 +751,7 @@ struct Dijkstra_Info {
     V<int> order;
 };
 
-Dijkstra_Info dijkstra(const Graph &graph, int s) {
+inline Dijkstra_Info dijkstra(const Graph &graph, int s) {
     Dijkstra_Info info;
 
     const auto &g = graph.graph;
@@ -523,6 +790,34 @@ Dijkstra_Info dijkstra(const Graph &graph, int s) {
     }
 
     return info;
+}
+
+inline V<int> restore_shortest_path(const Graph &graph, const V<int> &parent, int s, int t) {
+    V<int> path;
+
+    s = graph.to_internal(s);
+    t = graph.to_internal(t);
+
+    if (s == t) {
+        path.push_back(s);
+    } else {
+        if (parent[t] == -1) return {};
+
+        for (int v = t; v != -1; v = parent[v]) {
+            path.push_back(v);
+            if (v == s) break;
+        }
+
+        if (path.back() != s) return {};
+
+        reverse(all(path));
+    }
+
+    for (auto &v : path) {
+        v = graph.to_external(v);
+    }
+
+    return path;
 }
 
 // ============== 解答用 ==============
