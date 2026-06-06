@@ -10,6 +10,7 @@ tests=(
     verify/grid_test.cpp
     verify/binary_search_test.cpp
     verify/cumsum_test.cpp
+    verify/compress.cpp
     verify/graph_search_test.cpp
     verify/shortest_path_test.cpp
 )
