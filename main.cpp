@@ -827,9 +827,9 @@ template <class T>
 struct Compress {
     V<T> xs;
 
-    Compress() {}
+    Compress() = default;
 
-    Compress(const V<T> &v) {
+    explicit Compress(const V<T> &v) {
         xs = v;
         build();
     }
