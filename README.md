@@ -25,6 +25,7 @@ algorithm/
 │   ├── io.hpp
 │   ├── grid.hpp
 │   ├── cumsum.hpp
+│   ├── compress.hpp
 │   ├── binary_search.hpp
 │   ├── graph.hpp
 │   ├── graph_search.hpp
@@ -170,6 +171,24 @@ python3 scripts/bundle_main.py
 | `prefix_max_1d(vec)` | `L[i + 1] = max(vec[0..i])`, `R[i + 1] = max(vec[i..n-1])` を返す |
 
 `prefix_sum_2d` は空の `grid` に対して `1 x 1` のゼロ行列を返します。空でない `grid` は長方形であることを前提にします。区間取得関数は `ps` の有効範囲内の index を前提にします。
+
+## compress.hpp
+
+座標圧縮用の構造体を提供します。値の集合を昇順・重複なしに整理し、元の値と圧縮後 index を相互に扱います。
+
+| Name | Specification |
+| --- | --- |
+| `Compress<T>` | 座標圧縮用構造体。内部配列 `xs` を持つ |
+| `Compress()` | 空で初期化する |
+| `Compress(v)` | `v` を受け取り、即座に `build()` して圧縮表を作る |
+| `add(x)` | 値 `x` を追加する |
+| `add(vec)` | `vec` の全要素を追加する |
+| `build()` | `xs` を昇順にソートし、重複を削除する |
+| `get(x)` | `lower_bound(xs, x)` の位置を返す |
+| `val(i)` | 圧縮後 index `i` に対応する元の値を返す |
+| `size()` | 圧縮後の要素数を返す |
+
+`add()` の後は `build()` を呼んでから `get()` / `val()` を使うことを前提にします。`get(x)` は `x` が未登録でも挿入位置を返します。`val(i)` は `0 <= i < size()` を前提にします。
 
 ## binary_search.hpp
 
