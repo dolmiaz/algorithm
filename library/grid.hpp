@@ -114,20 +114,14 @@ struct Grid {
     }
 };
 
-inline Grid read_grid(const char block = '#') {
-    int H, W;
-    cin >> H >> W;
-
+inline Grid read_grid(const int H, const int W, const char block = '#') {
     Grid g(H, W, block);
     rep(i, H) cin >> g.cell[i];
 
     return g;
 }
 
-inline Grid read_grid_with_walls(const char wall = '1') {
-    int H, W;
-    cin >> H >> W;
-
+inline Grid read_grid_with_walls(const int H, const int W, const char wall = '1') {
     Grid g(H, W, '#', wall);
 
     rep(i, H) cin >> g.v[i];

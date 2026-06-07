@@ -5,6 +5,7 @@
 #include "../library/cumsum.hpp"
 #include "../library/compress.hpp"
 #include "../library/binary_search.hpp"
+#include "../library/dsu.hpp"
 #include "../library/graph.hpp"
 #include "../library/graph_search.hpp"
 #include "../library/shortest_path.hpp"

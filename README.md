@@ -27,6 +27,7 @@ algorithm/
 │   ├── cumsum.hpp
 │   ├── compress.hpp
 │   ├── binary_search.hpp
+│   ├── dsu.hpp
 │   ├── graph.hpp
 │   ├── graph_search.hpp
 │   └── shortest_path.hpp
@@ -35,7 +36,7 @@ algorithm/
 └── verify/
 ```
 
-`library/dsu.hpp`, `library/fenwick.hpp`, `library/segtree.hpp`, `library/modint.hpp`, `library/string.hpp`, `library/tree.hpp` は現時点では未実装です。
+`library/fenwick.hpp`, `library/segtree.hpp`, `library/modint.hpp`, `library/string.hpp`, `library/tree.hpp` は現時点では未実装です。
 
 ## Submission Template
 
@@ -137,8 +138,8 @@ python3 scripts/bundle_main.py
 | `Grid::has_wall(i, j, d)` | 方向 `d` に壁があれば true |
 | `Grid::can_go(i, j, d)` | 方向 `d` へ壁なしで移動でき、移動先が通行可能なら true |
 | `Grid::neighbors4(i, j)` | `U,R,D,L` 順で通行可能な隣接マスを返す |
-| `read_grid(block)` | `H W` と `H` 行の `cell` を読み込む |
-| `read_grid_with_walls(wall)` | `H W`、`H` 行の `v`、`H - 1` 行の `h` を読み込む |
+| `read_grid(H, W, block)` | `H` 行の `cell` を読み込む |
+| `read_grid_with_walls(H, W, wall)` | `H` 行の `v`、`H - 1` 行の `h` を読み込む |
 
 `h` または `w` が 0 以下の場合、通常の非負座標は範囲外になります。
 
@@ -206,6 +207,22 @@ python3 scripts/bundle_main.py
 
 配列は昇順ソート済みであることを前提にします。`binary_search_min/max` は整数型の探索幅で、`ok` と `ng` が異なる側にある単調述語を前提にします。
 
+## dsu.hpp
+
+Union-Find / Disjoint Set Union を提供します。頂点は 0-indexed です。
+
+| Name | Specification |
+| --- | --- |
+| `DSU(n)` | `0, 1, ..., n - 1` をそれぞれ独立した集合として初期化する |
+| `DSU::parent_or_size` | 根では集合サイズの負数、根でない頂点では親の頂点番号を保持する |
+| `DSU::leader(x)` | `x` が属する集合の代表元を返す。経路圧縮を行う |
+| `DSU::merge(a, b)` | `a` と `b` の集合を併合する。別集合なら `true`、同じ集合なら `false` |
+| `DSU::same(a, b)` | `a` と `b` が同じ集合なら `true` |
+| `DSU::size(x)` | `x` が属する集合の要素数を返す |
+| `DSU::count_groups()` | 現在の集合数を返す |
+
+`leader`, `merge`, `same`, `size` の引数は `0 <= x < n` を前提にします。`merge` は小さい集合を大きい集合へつなぐ方針で併合します。同じサイズの集合では第 2 引数側の代表元が併合後の代表元になります。
+
 ## graph.hpp
 
 隣接リスト形式のグラフと入力補助を提供します。
@@ -263,7 +280,6 @@ bash verify/run_all.sh
 
 ## TODO
 
-- DSU
 - Fenwick Tree
 - Segment Tree
 - modint

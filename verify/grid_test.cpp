@@ -119,9 +119,9 @@ int main() {
     assert(with_walls.has_wall(0, 0, 2));
     assert(!with_walls.has_wall(0, 1, 2));
 
-    istringstream grid_in("2 3\n.#.\n..#\n");
+    istringstream grid_in(".#.\n..#\n");
     auto *old_cin = cin.rdbuf(grid_in.rdbuf());
-    Grid read = read_grid();
+    Grid read = read_grid(2, 3);
     cin.rdbuf(old_cin);
     assert(read.H == 2);
     assert(read.W == 3);
@@ -130,26 +130,26 @@ int main() {
     assert(!read.passable(0, 1));
     assert(read.passable(1, 1));
 
-    istringstream custom_grid_in("1 3\n.X.\n");
+    istringstream custom_grid_in(".X.\n");
     old_cin = cin.rdbuf(custom_grid_in.rdbuf());
-    Grid read_custom = read_grid('X');
+    Grid read_custom = read_grid(1, 3, 'X');
     cin.rdbuf(old_cin);
     assert(read_custom.block == 'X');
     assert(!read_custom.passable(0, 1));
 
-    istringstream walls_in("2 3\n010\n101\n001\n");
+    istringstream walls_in("01\n10\n001\n");
     old_cin = cin.rdbuf(walls_in.rdbuf());
-    Grid read_walls = read_grid_with_walls();
+    Grid read_walls = read_grid_with_walls(2, 3);
     cin.rdbuf(old_cin);
     assert(read_walls.H == 2);
     assert(read_walls.W == 3);
-    assert((read_walls.v == V<string>{"010", "101"}));
+    assert((read_walls.v == V<string>{"01", "10"}));
     assert((read_walls.h == V<string>{"001"}));
     assert(read_walls.wall == '1');
 
-    istringstream one_row_walls_in("1 3\n01\n");
+    istringstream one_row_walls_in("01\n");
     old_cin = cin.rdbuf(one_row_walls_in.rdbuf());
-    Grid read_one_row_walls = read_grid_with_walls();
+    Grid read_one_row_walls = read_grid_with_walls(1, 3);
     cin.rdbuf(old_cin);
     assert(read_one_row_walls.H == 1);
     assert(read_one_row_walls.W == 3);
