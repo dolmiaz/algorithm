@@ -995,7 +995,7 @@ public:
 
 template <class T>
 struct RangeFenwick {
-    int size;
+    int size{};
     XorFenwick<T> bit0;
     XorFenwick<T> bit1;
 
