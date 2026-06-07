@@ -952,6 +952,26 @@ public:
     void set(int idx, const T x) {
         add(idx, x - get(idx));
     }
+
+    int lower_bound(T w) const {
+        if (w <= T(0)) return 0;
+
+        int idx = 0;
+
+        int k = 1;
+        while ((k << 1) <= n) k <<= 1;
+
+        for (; k > 0; k >>= 1) {
+            const int next = idx + k;
+
+            if (next <= n && bit[next] < w) {
+                idx = next;
+                w -= bit[next];
+            }
+        }
+
+        return idx;
+    }
 };
 
 // ============== 解答用 ==============
