@@ -3,9 +3,9 @@
 #include "../library/fenwick.hpp"
 
 int main() {
-    Fenwick<ll> fw(5);
+    XorFenwick<ll> fw(5);
 
-    assert(fw.n == 5);
+    assert(fw.size == 5);
     assert(fw.bit.size() == 6);
     assert(fw.sum(0) == 0);
     assert(fw.sum(5) == 0);
@@ -41,13 +41,13 @@ int main() {
     assert(fw.get(3) == -4);
     assert(fw.sum(0, 5) == 4);
 
-    const Fenwick<ll> &cfw = fw;
+    const XorFenwick<ll> &cfw = fw;
     assert(cfw.sum(3) == 8);
     assert(cfw.sum(2, 5) == -4);
     assert(cfw.get(1) == 5);
 
     fw.init(3);
-    assert(fw.n == 3);
+    assert(fw.size == 3);
     assert(fw.bit.size() == 4);
     assert(fw.sum(0) == 0);
     assert(fw.sum(3) == 0);
@@ -55,8 +55,8 @@ int main() {
     assert(fw.sum(0, 3) == 10);
     assert(fw.get(2) == 10);
 
-    Fenwick<int> empty;
-    assert(empty.n == 0);
+    XorFenwick<int> empty;
+    assert(empty.size == 0);
     assert(empty.bit.empty());
     empty.init(0);
     assert(empty.sum(0) == 0);
