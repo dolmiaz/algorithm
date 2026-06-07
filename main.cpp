@@ -907,18 +907,7 @@ struct DSU {
 #endif
 
 void solve() {
-    int H, W;
-    cin >> H >> W;
 
-    Grid grid = read_grid(H, W);
-    pii s, g;
-    rep(i, H) rep(j, W) {
-        if (grid.cell[i][j] == 's') s = {i, j};
-        if (grid.cell[i][j] == 'g') g = {i, j};
-    }
-
-    GridBFS_Info info = grid_bfs(grid, s);
-    yes(info.dist[g.first][g.second] != -1);
 }
 
 int main() {
