@@ -165,10 +165,7 @@ inline Grid read_grid(const int H, const int W, const char block = '#') {
     return g;
 }
 
-inline Grid read_grid_with_walls(const char wall = '1') {
-    int H, W;
-    cin >> H >> W;
-
+inline Grid read_grid_with_walls(const int H, const int W, const char wall = '1') {
     Grid g(H, W, '#', wall);
 
     rep(i, H) cin >> g.v[i];
@@ -884,7 +881,9 @@ struct DSU {
             group_count--;
             return true;
         }
+        parent_or_size[leader_b] += parent_or_size[leader_a];
         parent_or_size[leader_a] = leader_b;
+        group_count--;
         return true;
     }
 
