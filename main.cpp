@@ -907,14 +907,14 @@ struct DSU {
 // bit[i] は a[i - low_bit(i), i) の和を持つ
 // sum(r) は a[0] + ... + a[r - 1] を返す
 template <class T>
-struct XorFenwick {
+struct Fenwick {
     V<T> bit;
     int size;
 
-    XorFenwick() : size(0) {
+    Fenwick() : size(0) {
     }
 
-    explicit XorFenwick(const int size_) {
+    explicit Fenwick(const int size_) {
         init(size_);
     }
 
@@ -965,6 +965,8 @@ public:
     void push(const T x) {
         const int old_size = size;
 
+        if (bit.empty()) bit.push_back(T(0));
+
         ++size;
         bit.push_back(T(0));
 
@@ -996,8 +998,8 @@ public:
 template <class T>
 struct RangeFenwick {
     int size{};
-    XorFenwick<T> bit0;
-    XorFenwick<T> bit1;
+    Fenwick<T> bit0;
+    Fenwick<T> bit1;
 
     RangeFenwick() : size(0) {
     }
@@ -1013,7 +1015,7 @@ struct RangeFenwick {
     }
 
 private:
-    void add_bit(XorFenwick<T>& bit, const int idx, const T x) {
+    void add_bit(Fenwick<T>& bit, const int idx, const T x) {
         if (idx < size) bit.add(idx, x);
     }
 

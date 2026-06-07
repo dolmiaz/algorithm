@@ -239,9 +239,19 @@ Fenwick Tree / Binary Indexed Tree による 1 次元配列の点更新・区間
 | `Fenwick::sum(l, r)` | 半開区間 `[l, r)` の総和を返す |
 | `Fenwick::get(i)` | `a[i]` を返す |
 | `Fenwick::set(i, x)` | `a[i] = x` に更新する |
-| `Fenwick::lower_bound(w)` | `sum(i) < w <= sum(i + 1)` となる最小の `i` を返す。存在しなければ `n` |
+| `Fenwick::push(x)` | 末尾に値 `x` を追加し、長さを 1 増やす |
+| `Fenwick::lower_bound(w)` | `sum(i) < w <= sum(i + 1)` となる最小の `i` を返す。存在しなければ `size` |
+| `RangeFenwick<T>` | 区間加算・区間和取得用の Fenwick Tree |
+| `RangeFenwick()` | 空で初期化する |
+| `RangeFenwick(n)` | 長さ `n`、全要素 `T(0)` で初期化する |
+| `RangeFenwick::init(n)` | 長さ `n`、全要素 `T(0)` に初期化し直す |
+| `RangeFenwick::add(l, r, x)` | 半開区間 `[l, r)` の各要素に `x` を加算する |
+| `RangeFenwick::sum(r)` | 半開区間 `[0, r)` の総和を返す |
+| `RangeFenwick::sum(l, r)` | 半開区間 `[l, r)` の総和を返す |
+| `RangeFenwick::get(i)` | `a[i]` を返す |
+| `RangeFenwick::set(i, x)` | `a[i] = x` に更新する |
 
-`add`, `get`, `set` の index は `0 <= i < n`、`sum(r)` は `0 <= r <= n`、`sum(l, r)` は `0 <= l <= r <= n` を前提にします。`lower_bound(w)` は `w <= T(0)` なら `0` を返します。正しく使うには各要素が非負で、累積和が単調非減少であることを前提にします。`T` は `T(0)`, `+=`, `-`, `<`, `<=` が使える型であることを前提にします。
+`Fenwick` と `RangeFenwick` の長さは `size` に保持されます。`add`, `get`, `set` の index は `0 <= i < size`、`sum(r)` は `0 <= r <= size`、`sum(l, r)` は `0 <= l <= r <= size` を前提にします。`lower_bound(w)` は `w <= T(0)` なら `0` を返します。正しく使うには各要素が非負で、累積和が単調非減少であることを前提にします。`RangeFenwick::add(l, r, x)` は `l >= r` なら何もしません。`T` は `T(0)`, `+=`, `-`, `<`, `<=` が使える型であることを前提にします。
 
 ## graph.hpp
 
