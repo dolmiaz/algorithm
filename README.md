@@ -4,6 +4,28 @@ C++17 向けの競技プログラミング用テンプレート集です。
 
 `main.cpp` は提出用の全部入りテンプレートです。`library/` には再利用可能な部品、`snippets/` には問題ごとに編集する雛形を置きます。
 
+## Table of Contents
+
+- [Environment](#environment)
+- [Repository Layout](#repository-layout)
+- [Submission Template](#submission-template)
+- [Bundle Script](#bundle-script)
+- [basic.hpp](#basichpp)
+- [io.hpp](#iohpp)
+- [grid.hpp](#gridhpp)
+- [grid_search.hpp](#grid_searchhpp)
+- [cumsum.hpp](#cumsumhpp)
+- [imos.hpp](#imoshpp)
+- [compress.hpp](#compresshpp)
+- [binary_search.hpp](#binary_searchhpp)
+- [dsu.hpp](#dsuhpp)
+- [fenwick.hpp](#fenwickhpp)
+- [graph.hpp](#graphhpp)
+- [graph_search.hpp](#graph_searchhpp)
+- [shortest_path.hpp](#shortest_pathhpp)
+- [Verification](#verification)
+- [TODO](#todo)
+
 ## Environment
 
 - Language: C++17
@@ -24,11 +46,13 @@ algorithm/
 │   ├── basic.hpp
 │   ├── io.hpp
 │   ├── grid.hpp
+│   ├── grid_search.hpp
 │   ├── cumsum.hpp
+│   ├── imos.hpp
+│   ├── fenwick.hpp
 │   ├── compress.hpp
 │   ├── binary_search.hpp
 │   ├── dsu.hpp
-│   ├── fenwick.hpp
 │   ├── graph.hpp
 │   ├── graph_search.hpp
 │   └── shortest_path.hpp
@@ -62,6 +86,17 @@ python3 scripts/bundle_main.py
 ```
 
 スクリプトは `library/*.hpp` を対象にし、`#include "..."` のローカル依存を先に展開します。`main.cpp` の `// ============== 解答用 ==============` 以降は保持します。
+
+`main.cpp` では、探しやすいように以下の用途別グループ順で展開します。
+
+| Group | Headers |
+| --- | --- |
+| Base | `basic.hpp`, `io.hpp` |
+| Grid | `grid.hpp`, `grid_search.hpp` |
+| Range / Prefix | `cumsum.hpp`, `imos.hpp`, `fenwick.hpp` |
+| Index / Search | `compress.hpp`, `binary_search.hpp` |
+| Set / Connectivity | `dsu.hpp` |
+| Graph | `graph.hpp`, `graph_search.hpp`, `shortest_path.hpp` |
 
 ## basic.hpp
 
@@ -173,6 +208,23 @@ python3 scripts/bundle_main.py
 | `prefix_max_1d(vec)` | `L[i + 1] = max(vec[0..i])`, `R[i + 1] = max(vec[i..n-1])` を返す |
 
 `prefix_sum_2d` は空の `grid` に対して `1 x 1` のゼロ行列を返します。空でない `grid` は長方形であることを前提にします。区間取得関数は `ps` の有効範囲内の index を前提にします。
+
+## imos.hpp
+
+1 次元いもす法による区間加算と配列復元を提供します。index は 0-indexed です。
+
+| Name | Specification |
+| --- | --- |
+| `Imos1D<T>` | `T` 型の値を管理する 1 次元いもす法 |
+| `Imos1D(n)` | 長さ `n`、差分配列を全要素 `T{}` で初期化する |
+| `Imos1D::n` | 復元する配列の長さ |
+| `Imos1D::diff` | 長さ `n + 1` の差分配列 |
+| `Imos1D::built` | `build()` 呼び出し後に `true` になるフラグ |
+| `Imos1D::add(l, r, x)` | 半開区間 `[l, r)` の各要素に `x` を加算する |
+| `Imos1D::add_closed(l, r, x)` | 閉区間 `[l, r]` の各要素に `x` を加算する |
+| `Imos1D::build()` | 累積して長さ `n` の実配列を返す |
+
+`add(l, r, x)` は `l >= r` なら何もしません。`add`, `add_closed` の index は有効範囲内であることを前提にします。`build()` は何度呼んでも同じ配列を返し、`diff` 自体は変更しません。`T` は `T{}`, `+=`, `-=` が使える型であることを前提にします。
 
 ## compress.hpp
 

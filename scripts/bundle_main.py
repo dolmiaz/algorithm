@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Bundle library headers into main.cpp for submission.
 
-library/*.hpp を依存順に展開し、main.cpp の解答用セクション以降を残して
-提出用の全部入りテンプレートを更新する。
+library/*.hpp を用途別グループごとの依存順に展開し、
+main.cpp の解答用セクション以降を残して提出用の全部入りテンプレートを更新する。
 """
 
 from __future__ import annotations
@@ -18,16 +18,32 @@ SOLUTION_MARKER = "// ============== 解答用 =============="
 
 LOCAL_INCLUDE_RE = re.compile(r'^\s*#include\s+"([^"]+)"\s*$')
 SYSTEM_INCLUDE_RE = re.compile(r"^\s*#include\s*<([^>]+)>\s*$")
-HEADER_ORDER = [
-    "basic.hpp",
-    "grid.hpp",
-    "grid_search.hpp",
-    "io.hpp",
-    "cumsum.hpp",
-    "binary_search.hpp",
-    "graph.hpp",
-    "graph_search.hpp",
-    "shortest_path.hpp",
+HEADER_GROUPS = [
+    ("Base", [
+        "basic.hpp",
+        "io.hpp",
+    ]),
+    ("Grid", [
+        "grid.hpp",
+        "grid_search.hpp",
+    ]),
+    ("Range / Prefix", [
+        "cumsum.hpp",
+        "imos.hpp",
+        "fenwick.hpp",
+    ]),
+    ("Index / Search", [
+        "compress.hpp",
+        "binary_search.hpp",
+    ]),
+    ("Set / Connectivity", [
+        "dsu.hpp",
+    ]),
+    ("Graph", [
+        "graph.hpp",
+        "graph_search.hpp",
+        "shortest_path.hpp",
+    ]),
 ]
 
 
@@ -90,30 +106,48 @@ def solution_section() -> str:
 
 
 def main() -> None:
-    priority = {name: i for i, name in enumerate(HEADER_ORDER)}
-    headers = sorted(
-        LIBRARY_DIR.glob("*.hpp"),
+    header_order = [name for _, names in HEADER_GROUPS for name in names]
+    priority = {name: i for i, name in enumerate(header_order)}
+    grouped_names = set(header_order)
+    remaining_headers = sorted(
+        (path for path in LIBRARY_DIR.glob("*.hpp") if path.name not in grouped_names),
         key=lambda path: (priority.get(path.name, len(priority)), path.name),
     )
     seen: set[Path] = set()
-    order: list[Path] = []
-    for header in headers:
-        collect_headers(header, seen, order)
+    groups: list[tuple[str, list[Path]]] = []
+
+    for group_name, names in HEADER_GROUPS:
+        order: list[Path] = []
+        for name in names:
+            header = LIBRARY_DIR / name
+            if header.exists():
+                collect_headers(header, seen, order)
+        groups.append((group_name, order))
+
+    if remaining_headers:
+        order = []
+        for header in remaining_headers:
+            collect_headers(header, seen, order)
+        groups.append(("Other", order))
 
     system_includes: set[str] = set()
-    parts: list[str] = []
-    for header in order:
-        body = body_without_guards(header, system_includes)
-        if not body:
-            continue
-        rel = header.relative_to(ROOT)
-        parts.append(f"// ===== bundled from {rel} =====\n{body}")
+    group_parts: list[str] = []
+    for group_name, order in groups:
+        parts: list[str] = []
+        for header in order:
+            body = body_without_guards(header, system_includes)
+            if not body:
+                continue
+            rel = header.relative_to(ROOT)
+            parts.append(f"// ===== bundled from {rel} =====\n{body}")
+        if parts:
+            group_parts.append(f"// ===== {group_name} =====\n\n" + "\n\n".join(parts))
 
     include_lines = "\n".join(f"#include <{name}>" for name in sorted(system_includes))
     bundled = (
         f"{include_lines}\n"
         "using namespace std;\n\n"
-        + "\n\n".join(parts).rstrip()
+        + "\n\n".join(group_parts).rstrip()
         + "\n\n"
         + solution_section()
     )

@@ -11,6 +11,8 @@
 #include <vector>
 using namespace std;
 
+// ===== Base =====
+
 // ===== bundled from library/basic.hpp =====
 // Basic aliases, constants, and macros for C++17 competitive programming.
 
@@ -42,6 +44,83 @@ constexpr ll modNum = 998244353;
 #define rrep1(i, n) for (int i = static_cast<int>(n); i >= 1; i--)
 #define all(x) begin(x), end(x)
 #define rall(x) rbegin(x), rend(x)
+
+// ===== bundled from library/io.hpp =====
+// Small input/output and general utility helpers.
+
+
+// ============== ユーティリティ ==============
+template <class T, class U> bool chmin(T &a, const U &b) {
+    if (a > b) {
+        a = b;
+        return true;
+    }
+    return false;
+}
+template <class T, class U> bool chmax(T &a, const U &b) {
+    if (a < b) {
+        a = b;
+        return true;
+    }
+    return false;
+}
+template <class T> int sgn(T x) { return (x > 0) - (x < 0); }
+template <class T> T clampv(T x, T lo, T hi) { return x < lo ? lo : (x > hi ? hi : x); }
+template <class T> T ceil_div(T a, T b) {
+    if (b < 0)
+        a = -a, b = -b;
+    if (a >= 0)
+        return (a + b - 1) / b;
+    return a / b;
+}
+template <class T> T floor_div(T a, T b) {
+    if (b < 0)
+        a = -a, b = -b;
+    if (a >= 0)
+        return a / b;
+    return (a - (b - 1)) / b;
+}
+
+// ============== printヘルパ ==============
+template <class T> void print_one(const T &x) { cout << x; }
+template <class T, class... Ts> void print_one(const T &x, const Ts &...xs) {
+    cout << x << ' ';
+    print_one(xs...);
+}
+inline void println() {
+    cout << '\n';
+}
+template <class T, class... Ts> void println(const T &x, const Ts &...xs) {
+    cout << x;
+    ((cout << ' ' << xs), ...);
+    cout << '\n';
+}
+template <class T> void printAll(const V<T> &t) {
+    rep(i, t.size()) cout << t[i] << '\n';
+}
+inline void yes(const bool c = true) { cout << (c ? "Yes" : "No") << '\n'; }
+inline void YES(const bool c = true) { cout << (c ? "YES" : "NO") << '\n'; }
+
+// ============== 数学ヘルパ ==============
+// Sum of 0...(x-1)
+template <class T> T tri0(T x) {
+    return x * (x - 1) / 2;
+}
+// Sum of 1...x
+template <class T> T tri1(T x) {
+    return (x + 1) * x / 2;
+}
+
+// ============== 再帰ラムダ ==============
+template <class F> struct y_combinator {
+    F f;
+    template <class... Args> decltype(auto) operator()(Args &&...args) const {
+        return f(*this, std::forward<Args>(args)...);
+    }
+};
+template <class F> y_combinator<F> yc(F &&f) { return {std::forward<F>(f)}; }
+
+// ===== Grid =====
 
 // ===== bundled from library/grid.hpp =====
 // Grid direction constants and small helpers for grid traversal.
@@ -263,80 +342,7 @@ inline string restore_grid_moves4(const V<V<int>> &parent_dir, const pii s, cons
     return moves;
 }
 
-// ===== bundled from library/io.hpp =====
-// Small input/output and general utility helpers.
-
-
-// ============== ユーティリティ ==============
-template <class T, class U> bool chmin(T &a, const U &b) {
-    if (a > b) {
-        a = b;
-        return true;
-    }
-    return false;
-}
-template <class T, class U> bool chmax(T &a, const U &b) {
-    if (a < b) {
-        a = b;
-        return true;
-    }
-    return false;
-}
-template <class T> int sgn(T x) { return (x > 0) - (x < 0); }
-template <class T> T clampv(T x, T lo, T hi) { return x < lo ? lo : (x > hi ? hi : x); }
-template <class T> T ceil_div(T a, T b) {
-    if (b < 0)
-        a = -a, b = -b;
-    if (a >= 0)
-        return (a + b - 1) / b;
-    return a / b;
-}
-template <class T> T floor_div(T a, T b) {
-    if (b < 0)
-        a = -a, b = -b;
-    if (a >= 0)
-        return a / b;
-    return (a - (b - 1)) / b;
-}
-
-// ============== printヘルパ ==============
-template <class T> void print_one(const T &x) { cout << x; }
-template <class T, class... Ts> void print_one(const T &x, const Ts &...xs) {
-    cout << x << ' ';
-    print_one(xs...);
-}
-inline void println() {
-    cout << '\n';
-}
-template <class T, class... Ts> void println(const T &x, const Ts &...xs) {
-    cout << x;
-    ((cout << ' ' << xs), ...);
-    cout << '\n';
-}
-template <class T> void printAll(const V<T> &t) {
-    rep(i, t.size()) cout << t[i] << '\n';
-}
-inline void yes(const bool c = true) { cout << (c ? "Yes" : "No") << '\n'; }
-inline void YES(const bool c = true) { cout << (c ? "YES" : "NO") << '\n'; }
-
-// ============== 数学ヘルパ ==============
-// Sum of 0...(x-1)
-template <class T> T tri0(T x) {
-    return x * (x - 1) / 2;
-}
-// Sum of 1...x
-template <class T> T tri1(T x) {
-    return (x + 1) * x / 2;
-}
-
-// ============== 再帰ラムダ ==============
-template <class F> struct y_combinator {
-    F f;
-    template <class... Args> decltype(auto) operator()(Args &&...args) const {
-        return f(*this, std::forward<Args>(args)...);
-    }
-};
-template <class F> y_combinator<F> yc(F &&f) { return {std::forward<F>(f)}; }
+// ===== Range / Prefix =====
 
 // ===== bundled from library/cumsum.hpp =====
 // One-dimensional and two-dimensional prefix sum helpers.
@@ -397,6 +403,228 @@ template <class T> Prefix_Max_Info<T> prefix_max_1d(const V<T> &vec) {
     return info;
 }
 
+// ===== bundled from library/imos.hpp =====
+template <class T>
+struct Imos1D {
+    int n;
+    V<T> diff;
+    bool built = false;
+
+    explicit Imos1D(int _n) : n(_n), diff(_n + 1, T{}) {}
+
+    // [l, r)にxを加算
+    void add(const int l, const int r, const T x) {
+        if (l >= r) return;
+        diff[l] += x;
+        diff[r] -= x;
+    }
+
+    // [l, r]にxを加算
+    void add_closed(const int l, const int r, const T x) {
+        add(l, r + 1, x);
+    }
+
+    // 実際の配列を返す
+    V<T> build() {
+        V<T> res(n);
+        T cur = T{};
+
+        rep(i, n) {
+            cur += diff[i];
+            res[i] = cur;
+        }
+
+        built = true;
+        return res;
+    }
+};
+
+// ===== bundled from library/fenwick.hpp =====
+// 外部 index: 0-indexed
+// 内部 index: 1-indexed
+// bit[i] は a[i - low_bit(i), i) の和を持つ
+// sum(r) は a[0] + ... + a[r - 1] を返す
+template <class T>
+struct Fenwick {
+    V<T> bit;
+    int size;
+
+    Fenwick() : size(0) {
+    }
+
+    explicit Fenwick(const int size_) {
+        init(size_);
+    }
+
+    void init(const int size_) {
+        size = size_;
+        bit.assign(size + 1, T(0));
+    }
+
+private:
+    static int to_internal(const int idx) {
+        return idx + 1;
+    }
+
+    static int low_bit(const int idx) {
+        return idx & -idx;
+    }
+
+public:
+    void add(int idx, const T x) {
+        idx++;
+        while (idx <= size) {
+            bit[idx] += x;
+            idx += low_bit(idx);
+        }
+    }
+
+    T sum(int r) const {
+        T res = T(0);
+        while (r > 0) {
+            res += bit[r];
+            r -= low_bit(r);
+        }
+        return res;
+    }
+
+    T sum(const int l, const int r) const {
+        return sum(r) - sum(l);
+    }
+
+    T get(const int idx) const {
+        return sum(idx, idx + 1);
+    }
+
+    void set(const int i, const T x) {
+        add(i, x - get(i));
+    }
+
+    void push(const T x) {
+        const int old_size = size;
+
+        if (bit.empty()) bit.push_back(T(0));
+
+        ++size;
+        bit.push_back(T(0));
+
+        const int i = size;
+        bit[i] = x + sum(i - low_bit(i), old_size);
+    }
+
+    int lower_bound(T w) const {
+        if (w <= T(0)) return 0;
+
+        int idx = 0;
+
+        int k = 1;
+        while ((k << 1) <= size) k <<= 1;
+
+        for (; k > 0; k >>= 1) {
+            const int next = idx + k;
+
+            if (next <= size && bit[next] < w) {
+                idx = next;
+                w -= bit[next];
+            }
+        }
+
+        return idx;
+    }
+};
+
+template <class T>
+struct RangeFenwick {
+    int size{};
+    Fenwick<T> bit0;
+    Fenwick<T> bit1;
+
+    RangeFenwick() : size(0) {
+    }
+
+    explicit RangeFenwick(const int size_) {
+        init(size_);
+    }
+
+    void init(const int size_) {
+        size = size_;
+        bit0.init(size);
+        bit1.init(size);
+    }
+
+private:
+    void add_bit(Fenwick<T>& bit, const int idx, const T x) {
+        if (idx < size) bit.add(idx, x);
+    }
+
+public:
+    void add(const int l, const int r, const T x) {
+        if (l >= r) return;
+
+        add_bit(bit0, l, x);
+        add_bit(bit0, r, -x);
+
+        add_bit(bit1, l, x * T(l));
+        add_bit(bit1, r, -x * T(r));
+    }
+
+    T sum(const int r) const {
+        return bit0.sum(r) * T(r) - bit1.sum(r);
+    }
+
+    T sum(const int l, const int r) const {
+        return sum(r) - sum(l);
+    }
+
+    T get(const int idx) const {
+        return sum(idx, idx + 1);
+    }
+
+    void set(const int idx, const T x) {
+        add(idx, idx + 1, x - get(idx));
+    }
+};
+
+// ===== Index / Search =====
+
+// ===== bundled from library/compress.hpp =====
+template <class T>
+struct Compress {
+    V<T> xs;
+
+    Compress() = default;
+
+    explicit Compress(const V<T> &v) {
+        xs = v;
+        build();
+    }
+
+    void add(const T &x) {
+        xs.push_back(x);
+    }
+
+    void add(const V<T> &vec) {
+        xs.insert(xs.end(), all(vec));
+    }
+
+    void build() {
+        sort(all(xs));
+        xs.erase(unique(all(xs)), xs.end());
+    }
+
+    int get(const T x) {
+        return lower_bound(all(xs), x) - xs.begin();
+    }
+
+    T val(const int i) const {
+        return xs[i];
+    }
+
+    int size() const {
+        return static_cast<int>(xs.size());
+    }
+};
+
 // ===== bundled from library/binary_search.hpp =====
 // Binary search helpers for sorted containers and monotone predicates.
 
@@ -442,6 +670,57 @@ template <class T, class F> T binary_search_max(T ok, T ng, F pred) {
     }
     return ok;
 }
+
+// ===== Set / Connectivity =====
+
+// ===== bundled from library/dsu.hpp =====
+struct DSU {
+    vector<int> parent_or_size;
+    int group_count;
+
+    explicit DSU(const int n) {
+        parent_or_size.assign(n, -1);
+        group_count = n;
+    }
+
+    int leader(const int x){
+        if (parent_or_size[x] < 0) return x;
+        return parent_or_size[x] = leader(parent_or_size[x]);
+    }
+
+    bool merge(int a, int b) {
+        const int leader_a = leader(a);
+        const int leader_b = leader(b);
+
+        if (leader_a == leader_b) return false;
+
+        if (abs(parent_or_size[leader_a]) > abs(parent_or_size[leader_b])) {
+            parent_or_size[leader_a] += parent_or_size[leader_b];
+            parent_or_size[leader_b] = leader_a;
+            group_count--;
+            return true;
+        }
+        parent_or_size[leader_b] += parent_or_size[leader_a];
+        parent_or_size[leader_a] = leader_b;
+        group_count--;
+        return true;
+    }
+
+    bool same(int a, int b) {
+        return leader(a) == leader(b);
+    }
+
+    int size(int x) {
+        x = leader(x);
+        return -parent_or_size[x];
+    }
+
+    int count_groups() const {
+        return group_count;
+    }
+};
+
+// ===== Graph =====
 
 // ===== bundled from library/graph.hpp =====
 // Graph data structures and input helpers.
@@ -815,237 +1094,6 @@ inline V<int> restore_shortest_path(const Graph &graph, const V<int> &parent, in
 
     return path;
 }
-
-// ===== bundled from library/compress.hpp =====
-template <class T>
-struct Compress {
-    V<T> xs;
-
-    Compress() = default;
-
-    explicit Compress(const V<T> &v) {
-        xs = v;
-        build();
-    }
-
-    void add(const T &x) {
-        xs.push_back(x);
-    }
-
-    void add(const V<T> &vec) {
-        xs.insert(xs.end(), all(vec));
-    }
-
-    void build() {
-        sort(all(xs));
-        xs.erase(unique(all(xs)), xs.end());
-    }
-
-    int get(const T x) {
-        return lower_bound(all(xs), x) - xs.begin();
-    }
-
-    T val(const int i) const {
-        return xs[i];
-    }
-
-    int size() const {
-        return static_cast<int>(xs.size());
-    }
-};
-
-// ===== bundled from library/dsu.hpp =====
-struct DSU {
-    vector<int> parent_or_size;
-    int group_count;
-
-    explicit DSU(const int n) {
-        parent_or_size.assign(n, -1);
-        group_count = n;
-    }
-
-    int leader(const int x){
-        if (parent_or_size[x] < 0) return x;
-        return parent_or_size[x] = leader(parent_or_size[x]);
-    }
-
-    bool merge(int a, int b) {
-        const int leader_a = leader(a);
-        const int leader_b = leader(b);
-
-        if (leader_a == leader_b) return false;
-
-        if (abs(parent_or_size[leader_a]) > abs(parent_or_size[leader_b])) {
-            parent_or_size[leader_a] += parent_or_size[leader_b];
-            parent_or_size[leader_b] = leader_a;
-            group_count--;
-            return true;
-        }
-        parent_or_size[leader_b] += parent_or_size[leader_a];
-        parent_or_size[leader_a] = leader_b;
-        group_count--;
-        return true;
-    }
-
-    bool same(int a, int b) {
-        return leader(a) == leader(b);
-    }
-
-    int size(int x) {
-        x = leader(x);
-        return -parent_or_size[x];
-    }
-
-    int count_groups() const {
-        return group_count;
-    }
-};
-
-// ===== bundled from library/fenwick.hpp =====
-// 外部 index: 0-indexed
-// 内部 index: 1-indexed
-// bit[i] は a[i - low_bit(i), i) の和を持つ
-// sum(r) は a[0] + ... + a[r - 1] を返す
-template <class T>
-struct Fenwick {
-    V<T> bit;
-    int size;
-
-    Fenwick() : size(0) {
-    }
-
-    explicit Fenwick(const int size_) {
-        init(size_);
-    }
-
-    void init(const int size_) {
-        size = size_;
-        bit.assign(size + 1, T(0));
-    }
-
-private:
-    static int to_internal(const int idx) {
-        return idx + 1;
-    }
-
-    static int low_bit(const int idx) {
-        return idx & -idx;
-    }
-
-public:
-    void add(int idx, const T x) {
-        idx++;
-        while (idx <= size) {
-            bit[idx] += x;
-            idx += low_bit(idx);
-        }
-    }
-
-    T sum(int r) const {
-        T res = T(0);
-        while (r > 0) {
-            res += bit[r];
-            r -= low_bit(r);
-        }
-        return res;
-    }
-
-    T sum(const int l, const int r) const {
-        return sum(r) - sum(l);
-    }
-
-    T get(const int idx) const {
-        return sum(idx, idx + 1);
-    }
-
-    void set(const int i, const T x) {
-        add(i, x - get(i));
-    }
-
-    void push(const T x) {
-        const int old_size = size;
-
-        if (bit.empty()) bit.push_back(T(0));
-
-        ++size;
-        bit.push_back(T(0));
-
-        const int i = size;
-        bit[i] = x + sum(i - low_bit(i), old_size);
-    }
-
-    int lower_bound(T w) const {
-        if (w <= T(0)) return 0;
-
-        int idx = 0;
-
-        int k = 1;
-        while ((k << 1) <= size) k <<= 1;
-
-        for (; k > 0; k >>= 1) {
-            const int next = idx + k;
-
-            if (next <= size && bit[next] < w) {
-                idx = next;
-                w -= bit[next];
-            }
-        }
-
-        return idx;
-    }
-};
-
-template <class T>
-struct RangeFenwick {
-    int size{};
-    Fenwick<T> bit0;
-    Fenwick<T> bit1;
-
-    RangeFenwick() : size(0) {
-    }
-
-    explicit RangeFenwick(const int size_) {
-        init(size_);
-    }
-
-    void init(const int size_) {
-        size = size_;
-        bit0.init(size);
-        bit1.init(size);
-    }
-
-private:
-    void add_bit(Fenwick<T>& bit, const int idx, const T x) {
-        if (idx < size) bit.add(idx, x);
-    }
-
-public:
-    void add(const int l, const int r, const T x) {
-        if (l >= r) return;
-
-        add_bit(bit0, l, x);
-        add_bit(bit0, r, -x);
-
-        add_bit(bit1, l, x * T(l));
-        add_bit(bit1, r, -x * T(r));
-    }
-
-    T sum(const int r) const {
-        return bit0.sum(r) * T(r) - bit1.sum(r);
-    }
-
-    T sum(const int l, const int r) const {
-        return sum(r) - sum(l);
-    }
-
-    T get(const int idx) const {
-        return sum(idx, idx + 1);
-    }
-
-    void set(const int idx, const T x) {
-        add(idx, idx + 1, x - get(idx));
-    }
-};
 
 // ============== 解答用 ==============
 #ifndef MULTI_TEST_CASES
