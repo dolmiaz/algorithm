@@ -859,7 +859,7 @@ inline Graph read_graph(
 // ============== DFS ==============
 struct GraphDFS {
     const Graph *graph_ref = nullptr;
-    V<int> used, parent, tin, tout, comp_id, order;
+    V<int> used, parent, tin, tout, comp_id, order, post_order;
     int comp_cnt = 0;
     int timer = 0;
 
@@ -881,6 +881,8 @@ struct GraphDFS {
         comp_id.assign(n, -1);
         order.clear();
         order.reserve(n);
+        post_order.clear();
+        post_order.reserve(n);
         comp_cnt = 0;
         timer = 0;
 
@@ -898,6 +900,7 @@ struct GraphDFS {
             }
 
             tout[v] = timer;
+            post_order.push_back(v);
         });
 
         rep(v, n) {

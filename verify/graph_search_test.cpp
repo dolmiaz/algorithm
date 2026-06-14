@@ -9,6 +9,7 @@ int main() {
     GraphDFS empty_dfs(empty);
     assert(empty_dfs.comp_cnt == 0);
     assert(empty_dfs.order.empty());
+    assert(empty_dfs.post_order.empty());
     ConnectedComponents empty_cc(empty);
     assert(empty_cc.count() == 0);
     assert(empty_cc.comp_id.empty());
@@ -72,6 +73,8 @@ int main() {
     GraphDFS dfs_info(g);
     assert(dfs_info.comp_cnt == 3);
     assert(dfs_info.order.size() == 6);
+    assert(dfs_info.post_order.size() == 6);
+    assert((dfs_info.post_order == V<int>{2, 1, 0, 4, 3, 5}));
     assert(dfs_info.used == V<int>(6, 1));
     rep(v, 6) {
         assert(dfs_info.tin[v] >= 0);
@@ -158,6 +161,10 @@ int main() {
 
     rep(v, static_cast<int>(dfs_info.order.size())) {
         const int node = dfs_info.order[v];
+        assert(0 <= node && node < g.size());
+    }
+    rep(v, static_cast<int>(dfs_info.post_order.size())) {
+        const int node = dfs_info.post_order[v];
         assert(0 <= node && node < g.size());
     }
     rep(v, g.size()) {
