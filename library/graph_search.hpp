@@ -18,9 +18,52 @@ struct GraphDFS {
         build_all(graph);
     }
 
+    GraphDFS(const Graph &graph, const int s) {
+        build(graph, s);
+    }
+
+    void build(const Graph &graph, int s) {
+        s = graph.to_internal(s);
+        init(graph);
+        run_dfs(V<int>{s});
+    }
+
+    void build_multi(const Graph &graph, const V<int> &starts) {
+        V<int> internal_starts = starts;
+        for (auto &s : internal_starts) {
+            s = graph.to_internal(s);
+        }
+
+        init(graph);
+        run_dfs(internal_starts);
+    }
+
     void build_all(const Graph &graph) {
+        const int n = graph.size();
+        V<int> starts(n);
+        iota(all(starts), 0);
+
+        init(graph);
+        run_dfs(starts);
+    }
+
+    void build_all(const Graph &graph, const V<int> &starts) {
+        const int n = graph.size();
+        V<int> internal_starts = starts;
+        for (auto &s : internal_starts) {
+            s = graph.to_internal(s);
+        }
+        rep(v, n) {
+            internal_starts.push_back(v);
+        }
+
+        init(graph);
+        run_dfs(internal_starts);
+    }
+
+  private:
+    void init(const Graph &graph) {
         graph_ref = &graph;
-        const auto &g = graph.graph;
         const int n = graph.size();
 
         used.assign(n, 0);
@@ -34,6 +77,10 @@ struct GraphDFS {
         post_order.reserve(n);
         comp_cnt = 0;
         timer = 0;
+    }
+
+    void run_dfs(const V<int> &starts) {
+        const auto &g = graph_ref->graph;
 
         const auto dfs = yc([&](auto self, int v, const int p) -> void {
             used[v] = 1;
@@ -52,7 +99,7 @@ struct GraphDFS {
             post_order.push_back(v);
         });
 
-        rep(v, n) {
+        for (const int v : starts) {
             if (used[v]) continue;
             dfs(v, -1);
             comp_cnt++;

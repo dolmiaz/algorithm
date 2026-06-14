@@ -82,6 +82,29 @@ int main() {
         assert(dfs_info.comp_id[v] == cc.comp_id[v]);
     }
 
+    GraphDFS dfs_from_five(g, 5);
+    assert(dfs_from_five.comp_cnt == 1);
+    assert((dfs_from_five.used == V<int>{0, 0, 0, 1, 1, 0}));
+    assert((dfs_from_five.order == V<int>{4, 3}));
+    assert((dfs_from_five.post_order == V<int>{3, 4}));
+    assert((dfs_from_five.comp_id == V<int>{-1, -1, -1, 0, 0, -1}));
+
+    GraphDFS dfs_multi;
+    dfs_multi.build_multi(g, V<int>{5, 1, 5});
+    assert(dfs_multi.comp_cnt == 2);
+    assert((dfs_multi.used == V<int>{1, 1, 1, 1, 1, 0}));
+    assert((dfs_multi.order == V<int>{4, 3, 0, 1, 2}));
+    assert((dfs_multi.post_order == V<int>{3, 4, 2, 1, 0}));
+    assert((dfs_multi.comp_id == V<int>{1, 1, 1, 0, 0, -1}));
+
+    GraphDFS dfs_ordered_all;
+    dfs_ordered_all.build_all(g, V<int>{5, 1});
+    assert(dfs_ordered_all.comp_cnt == 3);
+    assert((dfs_ordered_all.used == V<int>(6, 1)));
+    assert((dfs_ordered_all.order == V<int>{4, 3, 0, 1, 2, 5}));
+    assert((dfs_ordered_all.post_order == V<int>{3, 4, 2, 1, 0, 5}));
+    assert((dfs_ordered_all.comp_id == V<int>{1, 1, 1, 0, 0, 2}));
+
     Graph directed(3, false, false, false);
     directed.add_edge(0, 1);
     directed.add_edge(1, 2);
