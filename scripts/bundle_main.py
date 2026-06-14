@@ -43,6 +43,7 @@ HEADER_GROUPS = [
         "graph.hpp",
         "graph_search.hpp",
         "shortest_path.hpp",
+        "dag.h",
     ]),
 ]
 

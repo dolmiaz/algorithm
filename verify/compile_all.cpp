@@ -11,6 +11,7 @@
 #include "../library/graph.hpp"
 #include "../library/graph_search.hpp"
 #include "../library/shortest_path.hpp"
+#include "../library/dag.h"
 
 int main() {
     return 0;

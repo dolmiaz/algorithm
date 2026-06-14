@@ -16,6 +16,7 @@ tests=(
     verify/dsu_test.cpp
     verify/graph_search_test.cpp
     verify/shortest_path_test.cpp
+    verify/dag_test.cpp
 )
 
 for file in "${tests[@]}"; do
