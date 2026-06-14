@@ -22,6 +22,7 @@ C++17 向けの競技プログラミング用テンプレート集です。
 - [fenwick.hpp](#fenwickhpp)
 - [graph.hpp](#graphhpp)
 - [graph_search.hpp](#graph_searchhpp)
+- [dag.h](#dagh)
 - [shortest_path.hpp](#shortest_pathhpp)
 - [Verification](#verification)
 - [TODO](#todo)
@@ -55,7 +56,8 @@ algorithm/
 │   ├── dsu.hpp
 │   ├── graph.hpp
 │   ├── graph_search.hpp
-│   └── shortest_path.hpp
+│   ├── shortest_path.hpp
+│   └── dag.h
 ├── snippets/
 │   └── dp.cpp
 └── verify/
@@ -85,7 +87,7 @@ g++ -std=gnu++17 -O2 -Wall -Wextra -DMULTI_TEST_CASES=1 main.cpp -o main
 python3 scripts/bundle_main.py
 ```
 
-スクリプトは `library/*.hpp` を対象にし、`#include "..."` のローカル依存を先に展開します。`main.cpp` の `// ============== 解答用 ==============` 以降は保持します。
+スクリプトは用途別グループに登録された `library/` のヘッダを対象にし、`#include "..."` のローカル依存を先に展開します。`main.cpp` の `// ============== 解答用 ==============` 以降は保持します。
 
 `main.cpp` では、探しやすいように以下の用途別グループ順で展開します。
 
@@ -96,7 +98,7 @@ python3 scripts/bundle_main.py
 | Range / Prefix | `cumsum.hpp`, `imos.hpp`, `fenwick.hpp` |
 | Index / Search | `compress.hpp`, `binary_search.hpp` |
 | Set / Connectivity | `dsu.hpp` |
-| Graph | `graph.hpp`, `graph_search.hpp`, `shortest_path.hpp` |
+| Graph | `graph.hpp`, `graph_search.hpp`, `shortest_path.hpp`, `dag.h` |
 
 ## basic.hpp
 
