@@ -57,17 +57,17 @@ struct Dijkstra {
         }
     }
 
-    ll distance(int t) const {
+    [[nodiscard]] ll distance(int t) const {
         const Graph &graph = *graph_ref;
         t = graph.to_internal(t);
         return dist[t];
     }
 
-    bool reachable(int t) const {
+    [[nodiscard]] bool reachable(int t) const {
         return distance(t) != INF_L;
     }
 
-    V<int> path(int t) const {
+    [[nodiscard]] V<int> path(int t) const {
         const Graph &graph = *graph_ref;
         t = graph.to_internal(t);
 

@@ -43,7 +43,7 @@ struct DSU {
         return -parent_or_size[x];
     }
 
-    int count_groups() const {
+    [[nodiscard]] int count_groups() const {
         return group_count;
     }
 };

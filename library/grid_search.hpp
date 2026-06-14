@@ -13,11 +13,11 @@ struct GridBFS {
 
     GridBFS() = default;
 
-    GridBFS(const Grid &g, const pii s) {
+    GridBFS(const Grid &g, const pii& s) {
         build(g, s);
     }
 
-    void build(const Grid &g, const pii s) {
+    void build(const Grid &g, const pii& s) {
         grid = &g;
         source = s;
 
@@ -52,7 +52,7 @@ struct GridBFS {
         }
     }
 
-    V<pii> path(const pii t) const {
+    [[nodiscard]] V<pii> path(const pii& t) const {
         V<pii> res;
 
         pii now = t;
@@ -72,7 +72,7 @@ struct GridBFS {
         return res;
     }
 
-    string moves4(const pii t) const {
+    [[nodiscard]] string moves4(const pii& t) const {
         string moves;
 
         pii now = t;

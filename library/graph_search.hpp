@@ -117,7 +117,7 @@ struct GraphBFS {
         run_bfs(q, g);
     }
 
-    V<int> path(int t) const {
+    [[nodiscard]] V<int> path(int t) const {
         const Graph &graph = *graph_ref;
         t = graph.to_internal(t);
 
@@ -214,20 +214,20 @@ struct ConnectedComponents {
         }
     }
 
-    bool same(int a, int b) const {
+    [[nodiscard]] bool same(int a, int b) const {
         const Graph &graph = *graph_ref;
         a = graph.to_internal(a);
         b = graph.to_internal(b);
         return comp_id[a] == comp_id[b];
     }
 
-    int size(int v) const {
+    [[nodiscard]] int size(int v) const {
         const Graph &graph = *graph_ref;
         v = graph.to_internal(v);
         return comp_size[comp_id[v]];
     }
 
-    int count() const {
+    [[nodiscard]] int count() const {
         return comp_cnt;
     }
 };

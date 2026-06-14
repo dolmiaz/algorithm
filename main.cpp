@@ -266,11 +266,11 @@ struct GridBFS {
 
     GridBFS() = default;
 
-    GridBFS(const Grid &g, const pii s) {
+    GridBFS(const Grid &g, const pii& s) {
         build(g, s);
     }
 
-    void build(const Grid &g, const pii s) {
+    void build(const Grid &g, const pii& s) {
         grid = &g;
         source = s;
 
@@ -305,7 +305,7 @@ struct GridBFS {
         }
     }
 
-    V<pii> path(const pii t) const {
+    [[nodiscard]] V<pii> path(const pii& t) const {
         V<pii> res;
 
         pii now = t;
@@ -325,7 +325,7 @@ struct GridBFS {
         return res;
     }
 
-    string moves4(const pii t) const {
+    [[nodiscard]] string moves4(const pii& t) const {
         string moves;
 
         pii now = t;
@@ -656,7 +656,7 @@ struct Compress {
         return xs[i];
     }
 
-    int size() const {
+    [[nodiscard]] int size() const {
         return static_cast<int>(xs.size());
     }
 };
@@ -767,7 +767,7 @@ struct DSU {
         return -parent_or_size[x];
     }
 
-    int count_groups() const {
+    [[nodiscard]] int count_groups() const {
         return group_count;
     }
 };
@@ -968,7 +968,7 @@ struct GraphBFS {
         run_bfs(q, g);
     }
 
-    V<int> path(int t) const {
+    [[nodiscard]] V<int> path(int t) const {
         const Graph &graph = *graph_ref;
         t = graph.to_internal(t);
 
@@ -1065,20 +1065,20 @@ struct ConnectedComponents {
         }
     }
 
-    bool same(int a, int b) const {
+    [[nodiscard]] bool same(int a, int b) const {
         const Graph &graph = *graph_ref;
         a = graph.to_internal(a);
         b = graph.to_internal(b);
         return comp_id[a] == comp_id[b];
     }
 
-    int size(int v) const {
+    [[nodiscard]] int size(int v) const {
         const Graph &graph = *graph_ref;
         v = graph.to_internal(v);
         return comp_size[comp_id[v]];
     }
 
-    int count() const {
+    [[nodiscard]] int count() const {
         return comp_cnt;
     }
 };
@@ -1141,17 +1141,17 @@ struct Dijkstra {
         }
     }
 
-    ll distance(int t) const {
+    [[nodiscard]] ll distance(int t) const {
         const Graph &graph = *graph_ref;
         t = graph.to_internal(t);
         return dist[t];
     }
 
-    bool reachable(int t) const {
+    [[nodiscard]] bool reachable(int t) const {
         return distance(t) != INF_L;
     }
 
-    V<int> path(int t) const {
+    [[nodiscard]] V<int> path(int t) const {
         const Graph &graph = *graph_ref;
         t = graph.to_internal(t);
 

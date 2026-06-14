@@ -34,7 +34,7 @@ struct Compress {
         return xs[i];
     }
 
-    int size() const {
+    [[nodiscard]] int size() const {
         return static_cast<int>(xs.size());
     }
 };
