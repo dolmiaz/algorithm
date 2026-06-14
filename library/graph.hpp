@@ -36,20 +36,20 @@ struct Graph {
     [[nodiscard]] int to_external(const int v) const {
         return one_indexed ? v + 1 : v;
     }
-};
 
-inline void add_edge_internal(Graph &g, const int a, const int b, const ll w = 1) {
-    g.graph[a].emplace_back(b, w);
-    if (g.undirected) {
-        g.graph[b].emplace_back(a, w);
+    void add_edge_internal(const int a, const int b, const ll w = 1) {
+        graph[a].emplace_back(b, w);
+        if (undirected) {
+            graph[b].emplace_back(a, w);
+        }
     }
-}
 
-inline void add_edge(Graph &g, int a, int b, const ll w = 1) {
-    a = g.to_internal(a);
-    b = g.to_internal(b);
-    add_edge_internal(g, a, b, w);
-}
+    void add_edge(int a, int b, const ll w = 1) {
+        a = to_internal(a);
+        b = to_internal(b);
+        add_edge_internal(a, b, w);
+    }
+};
 
 inline Graph read_graph(
     const int n,
@@ -70,7 +70,7 @@ inline Graph read_graph(
             cin >> a >> b;
         }
 
-        add_edge(g, a, b, w);
+        g.add_edge(a, b, w);
     }
 
     return g;

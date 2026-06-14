@@ -257,151 +257,187 @@ inline Grid read_grid_with_walls(const int H, const int W, const char wall = '1'
 // Grid Algorithms.
 
 
-struct GridBFS_Info {
+struct GridBFS {
+    const Grid *grid = nullptr;
+    pii source = {-1, -1};
     V<V<int>> dist;
     V<V<pii>> parent;
     V<V<int>> parent_dir;
-};
 
-inline GridBFS_Info grid_bfs(const Grid& g, const pair<int, int> s) {
-    GridBFS_Info info;
+    GridBFS() = default;
 
-    info.dist.assign(g.H, V<int>(g.W, -1));
-    info.parent.assign(g.H, V<pii>(g.W, {-1, -1}));
-    info.parent_dir.assign(g.H, V<int>(g.W, -1));
+    GridBFS(const Grid &g, const pii s) {
+        build(g, s);
+    }
 
-    queue<pii> q;
-    info.dist[s.first][s.second] = 0;
-    q.push(s);
+    void build(const Grid &g, const pii s) {
+        grid = &g;
+        source = s;
 
-    while (!q.empty()) {
-        auto [i, j] = q.front();
-        q.pop();
+        dist.assign(g.H, V<int>(g.W, -1));
+        parent.assign(g.H, V<pii>(g.W, {-1, -1}));
+        parent_dir.assign(g.H, V<int>(g.W, -1));
 
-        V<pii> neighbors = g.neighbors4(i, j);
+        queue<pii> q;
+        dist[s.first][s.second] = 0;
+        q.push(s);
 
-        for (const auto neighbor : neighbors) {
-            const auto [ni, nj] = neighbor;
+        while (!q.empty()) {
+            auto [i, j] = q.front();
+            q.pop();
 
-            if (info.dist[ni][nj] != -1) continue;
+            V<pii> neighbors = g.neighbors4(i, j);
 
-            const int di = ni - i, dj = nj - j;
-            const int dir = (dj == 0 ? di + 1 : (dj == 1 ? 1 : 3));
+            for (const auto neighbor : neighbors) {
+                const auto [ni, nj] = neighbor;
 
-            info.dist[ni][nj] = info.dist[i][j] + 1;
-            info.parent[ni][nj] = {i, j};
-            info.parent_dir[ni][nj] = dir;
+                if (dist[ni][nj] != -1) continue;
 
-            q.emplace(ni, nj);
+                const int di = ni - i, dj = nj - j;
+                const int dir = (dj == 0 ? di + 1 : (dj == 1 ? 1 : 3));
+
+                dist[ni][nj] = dist[i][j] + 1;
+                parent[ni][nj] = {i, j};
+                parent_dir[ni][nj] = dir;
+
+                q.emplace(ni, nj);
+            }
         }
     }
 
-    return info;
-}
+    V<pii> path(const pii t) const {
+        V<pii> res;
 
-inline V<pii> restore_grid_path(const V<V<pii>> &parent, const pii s, const pii t) {
-    V<pii> path;
+        pii now = t;
 
-    pii now = t;
+        while (true) {
+            res.emplace_back(now);
 
-    while (true) {
-        path.emplace_back(now);
+            if (now == source) break;
 
-        if (now == s) break;
+            pii p = parent[now.first][now.second];
+            if (p == pii{-1, -1}) return {};
 
-        pii p = parent[now.first][now.second];
+            now = p;
+        }
 
-        if (p == pii{-1, -1}) return {};
-
-        now = p;
+        reverse(all(res));
+        return res;
     }
 
-    reverse(all(path));
-    return path;
-}
+    string moves4(const pii t) const {
+        string moves;
 
-inline string restore_grid_moves4(const V<V<int>> &parent_dir, const pii s, const pii t) {
-    string moves;
+        pii now = t;
 
-    pii now = t;
+        while (now != source) {
+            const int dir = parent_dir[now.first][now.second];
 
-    while (now != s) {
-        const int dir = parent_dir[now.first][now.second];
+            if (dir < 0 || dir >= 4) return "";
 
-        if (dir < 0 || dir >= 4) return "";
+            moves.push_back(DIR4[dir]);
 
-        moves.push_back(DIR4[dir]);
+            const int pi = now.first - DR4[dir];
+            const int pj = now.second - DC4[dir];
 
-        const int pi = now.first - DR4[dir];
-        const int pj = now.second - DC4[dir];
+            now = {pi, pj};
+        }
 
-        now = {pi, pj};
+        reverse(all(moves));
+        return moves;
     }
-
-    reverse(all(moves));
-    return moves;
-}
+};
 
 // ===== Range / Prefix =====
 
 // ===== bundled from library/cumsum.hpp =====
-// One-dimensional and two-dimensional prefix sum helpers.
+// Prefix sum and prefix maximum helpers.
 
 
 // ============== 累積和 ==============
-// 1D --- 0, s[1], s[2], ...型
-template <class T> V<T> prefix_sum_1d(const V<T> &vec) {
-    const int n = static_cast<int>(vec.size());
-    V<T> ps(n + 1, T{});
-    rep(i, n) ps[i + 1] = ps[i] + vec[i];
+template <class T>
+struct PrefixSum1D {
+    int size{};
+    V<T> ps;
 
-    return ps;
-}
+    PrefixSum1D() : size(0), ps(1, T{}) {}
 
-template <class T> T range_sum_1d(const V<T> &ps, const int l, const int r) {
-    return ps[r] - ps[l];
-}
-
-// 2D
-// 0 0       0       ...
-// 0 s[1][1] s[1][2] ...
-// 0 s[2][1] s[2][2] ...
-// . ...     ...
-template <class T> V<V<T>> prefix_sum_2d(const V<V<T>> &grid) {
-    const int n = static_cast<int>(grid.size());
-    if (n == 0) return V<V<T>>(1, V<T>(1, T{}));
-
-    const int m = static_cast<int>(grid[0].size());
-    V<V<T>> ps(n + 1, V<T>(m + 1, T{}));
-
-    rep(i, n) ps[i + 1] = prefix_sum_1d(grid[i]);
-    rep(i, n) {
-        rep(j, m + 1) ps[i + 1][j] += ps[i][j];
+    explicit PrefixSum1D(const V<T> &vec) {
+        build(vec);
     }
 
-    return ps;
-}
+    void build(const V<T> &vec) {
+        size = static_cast<int>(vec.size());
+        ps.assign(size + 1, T{});
+        rep(i, size) ps[i + 1] = ps[i] + vec[i];
+    }
 
-template <class T> T range_sum_2d(const V<V<T>> &ps, const int r1, const int c1, const int r2, const int c2) {
-    return ps[r2][c2] - ps[r1][c2] - ps[r2][c1] + ps[r1][c1];
-}
+    T sum(const int r) const {
+        return ps[r];
+    }
+
+    T sum(const int l, const int r) const {
+        return ps[r] - ps[l];
+    }
+};
+
+template <class T>
+struct PrefixSum2D {
+    int H{}, W{};
+    V<V<T>> ps;
+
+    PrefixSum2D() : H(0), W(0), ps(1, V<T>(1, T{})) {}
+
+    explicit PrefixSum2D(const V<V<T>> &grid) {
+        build(grid);
+    }
+
+    void build(const V<V<T>> &grid) {
+        H = static_cast<int>(grid.size());
+        W = H == 0 ? 0 : static_cast<int>(grid[0].size());
+        ps.assign(H + 1, V<T>(W + 1, T{}));
+
+        rep(i, H) {
+            rep(j, W) {
+                ps[i + 1][j + 1] = ps[i + 1][j] + ps[i][j + 1] - ps[i][j] + grid[i][j];
+            }
+        }
+    }
+
+    T sum(const int r1, const int c1, const int r2, const int c2) const {
+        return ps[r2][c2] - ps[r1][c2] - ps[r2][c1] + ps[r1][c1];
+    }
+};
 
 // 累積MAX
-// A[0], A[1], A[2], ..., A[N - 1]
-// lowest, L[0], L[1], L[2], ..., L[N - 1], lowest
-// lowest, R[0], R[1], R[2], ..., R[N - 1], lowest
-template <class T> struct Prefix_Max_Info {
-    V<T> L, R;
+template <class T>
+struct PrefixMax1D {
+    int size{};
+    V<T> pref, suff;
+
+    PrefixMax1D() : size(0), pref(1, numeric_limits<T>::lowest()), suff(1, numeric_limits<T>::lowest()) {}
+
+    explicit PrefixMax1D(const V<T> &vec) {
+        build(vec);
+    }
+
+    void build(const V<T> &vec) {
+        size = static_cast<int>(vec.size());
+        pref.assign(size + 1, numeric_limits<T>::lowest());
+        suff.assign(size + 1, numeric_limits<T>::lowest());
+
+        rep(i, size) pref[i + 1] = max(pref[i], vec[i]);
+        rrep(i, size) suff[i] = max(suff[i + 1], vec[i]);
+    }
+
+    T prefix_max(const int r) const {
+        return pref[r];
+    }
+
+    T suffix_max(const int l) const {
+        return suff[l];
+    }
 };
-template <class T> Prefix_Max_Info<T> prefix_max_1d(const V<T> &vec) {
-    const int n = static_cast<int>(vec.size());
-    Prefix_Max_Info<T> info;
-    info.L.assign(n + 2, numeric_limits<T>::lowest());
-    info.R.assign(n + 2, numeric_limits<T>::lowest());
-    rep(i, n) info.L[i + 1] = max(info.L[i], vec[i]);
-    rrep(i, n) info.R[i + 1] = max(info.R[i + 2], vec[i]);
-    return info;
-}
 
 // ===== bundled from library/imos.hpp =====
 template <class T>
@@ -630,46 +666,62 @@ struct Compress {
 
 
 // ============== 二分探索 ==============
-// return -> 0-indexed
-template <class T, class F> int binary_search_index(const V<F> &vec, T x) {
-    int pos = lower_bound(all(vec), x) - vec.begin();
-    if (pos < static_cast<int>(vec.size()) && vec[pos] == x) return pos;
-    return -1;
-}
 template <class T>
-int first_ge(const V<T>& a, T x) {
-    return lower_bound(all(a), x) - a.begin();
-}
-template <class T>
-int first_gt(const V<T>& a, T x) {
-    return upper_bound(all(a), x) - a.begin();
-}
-template <class T>
-int last_lt(const V<T>& a, T x) {
-    int p = lower_bound(all(a), x) - a.begin();
-    return p - 1;
-}
-template <class T>
-int last_le(const V<T>& a, T x) {
-    int p = upper_bound(all(a), x) - a.begin();
-    return p - 1;
-}
-template <class T, class F> T binary_search_min(T ok, T ng, F pred) {
-    while (abs(ok - ng) > 1) {
-        T mid = ng + (ok - ng) / 2;
-        if (pred(mid)) ok = mid;
-        else ng = mid;
+struct BinarySearch {
+    V<T> a;
+
+    BinarySearch() = default;
+
+    explicit BinarySearch(const V<T> &sorted_vec) {
+        build(sorted_vec);
     }
-    return ok;
-}
-template <class T, class F> T binary_search_max(T ok, T ng, F pred) {
-    while (abs(ng - ok) > 1) {
-        T mid = ok + (ng - ok) / 2;
-        if (pred(mid)) ok = mid;
-        else ng = mid;
+
+    void build(const V<T> &sorted_vec) {
+        a = sorted_vec;
     }
-    return ok;
-}
+
+    int index(const T &x) const {
+        const int pos = lower_bound(all(a), x) - a.begin();
+        if (pos < static_cast<int>(a.size()) && a[pos] == x) return pos;
+        return -1;
+    }
+
+    int first_ge(const T &x) const {
+        return lower_bound(all(a), x) - a.begin();
+    }
+
+    int first_gt(const T &x) const {
+        return upper_bound(all(a), x) - a.begin();
+    }
+
+    int last_lt(const T &x) const {
+        return first_ge(x) - 1;
+    }
+
+    int last_le(const T &x) const {
+        return first_gt(x) - 1;
+    }
+
+    template <class U, class F>
+    static U min_true(U ok, U ng, F pred) {
+        while (abs(ok - ng) > 1) {
+            U mid = ng + (ok - ng) / 2;
+            if (pred(mid)) ok = mid;
+            else ng = mid;
+        }
+        return ok;
+    }
+
+    template <class U, class F>
+    static U max_true(U ok, U ng, F pred) {
+        while (abs(ng - ok) > 1) {
+            U mid = ok + (ng - ok) / 2;
+            if (pred(mid)) ok = mid;
+            else ng = mid;
+        }
+        return ok;
+    }
+};
 
 // ===== Set / Connectivity =====
 
@@ -759,20 +811,20 @@ struct Graph {
     [[nodiscard]] int to_external(const int v) const {
         return one_indexed ? v + 1 : v;
     }
-};
 
-inline void add_edge_internal(Graph &g, const int a, const int b, const ll w = 1) {
-    g.graph[a].emplace_back(b, w);
-    if (g.undirected) {
-        g.graph[b].emplace_back(a, w);
+    void add_edge_internal(const int a, const int b, const ll w = 1) {
+        graph[a].emplace_back(b, w);
+        if (undirected) {
+            graph[b].emplace_back(a, w);
+        }
     }
-}
 
-inline void add_edge(Graph &g, int a, int b, const ll w = 1) {
-    a = g.to_internal(a);
-    b = g.to_internal(b);
-    add_edge_internal(g, a, b, w);
-}
+    void add_edge(int a, int b, const ll w = 1) {
+        a = to_internal(a);
+        b = to_internal(b);
+        add_edge_internal(a, b, w);
+    }
+};
 
 inline Graph read_graph(
     const int n,
@@ -793,7 +845,7 @@ inline Graph read_graph(
             cin >> a >> b;
         }
 
-        add_edge(g, a, b, w);
+        g.add_edge(a, b, w);
     }
 
     return g;
@@ -805,295 +857,325 @@ inline Graph read_graph(
 
 // ============== グラフアルゴリズム ==============
 // ============== DFS ==============
-struct DFS_Info {
+struct GraphDFS {
+    const Graph *graph_ref = nullptr;
     V<int> used, parent, tin, tout, comp_id, order;
     int comp_cnt = 0;
     int timer = 0;
-};
 
-inline DFS_Info dfs_all(const Graph &graph) {
-    DFS_Info info;
+    GraphDFS() = default;
 
-    const auto &g = graph.graph;
-    const int n = graph.size();
-
-    info.used.assign(n, 0);
-    info.parent.assign(n, -1);
-    info.tin.assign(n, -1);
-    info.tout.assign(n, -1);
-    info.comp_id.assign(n, -1);
-    info.order.reserve(n);
-
-    const auto dfs = yc([&](auto self, int v, const int p) -> void {
-        info.used[v] = 1;
-        info.parent[v] = p;
-        info.tin[v] = info.timer++;
-        info.comp_id[v] = info.comp_cnt;
-        info.order.push_back(v);
-
-        for (const auto &e : g[v]) {
-            const int to = e.to;
-            if (info.used[to]) continue;
-            self(to, v);
-        }
-
-        info.tout[v] = info.timer;
-    });
-
-    rep(v, n) {
-        if (info.used[v]) continue;
-        dfs(v, -1);
-        info.comp_cnt++;
+    explicit GraphDFS(const Graph &graph) {
+        build_all(graph);
     }
 
-    return info;
-}
+    void build_all(const Graph &graph) {
+        graph_ref = &graph;
+        const auto &g = graph.graph;
+        const int n = graph.size();
+
+        used.assign(n, 0);
+        parent.assign(n, -1);
+        tin.assign(n, -1);
+        tout.assign(n, -1);
+        comp_id.assign(n, -1);
+        order.clear();
+        order.reserve(n);
+        comp_cnt = 0;
+        timer = 0;
+
+        const auto dfs = yc([&](auto self, int v, const int p) -> void {
+            used[v] = 1;
+            parent[v] = p;
+            tin[v] = timer++;
+            comp_id[v] = comp_cnt;
+            order.push_back(v);
+
+            for (const auto &e : g[v]) {
+                const int to = e.to;
+                if (used[to]) continue;
+                self(to, v);
+            }
+
+            tout[v] = timer;
+        });
+
+        rep(v, n) {
+            if (used[v]) continue;
+            dfs(v, -1);
+            comp_cnt++;
+        }
+    }
+};
 
 // ============== BFS ==============
-struct BFS_Info {
+struct GraphBFS {
+    const Graph *graph_ref = nullptr;
     V<int> dist, parent;
     V<int> order, source;
-};
 
-inline BFS_Info bfs(const Graph &graph, int s) {
-    BFS_Info info;
+    GraphBFS() = default;
 
-    const auto &g = graph.graph;
-    const int n = graph.size();
-
-    s = graph.to_internal(s);
-
-    info.dist.assign(n, -1);
-    info.parent.assign(n, -1);
-    info.source.assign(n, -1);
-    info.order.reserve(n);
-
-    queue<int> q;
-
-    info.dist[s] = 0;
-    info.source[s] = s;
-    q.push(s);
-
-    while (!q.empty()) {
-        const int v = q.front();
-        q.pop();
-
-        info.order.push_back(v);
-
-        for (const auto &e : g[v]) {
-            const int to = e.to;
-            if (info.dist[to] != -1) continue;
-
-            info.dist[to] = info.dist[v] + 1;
-            info.parent[to] = v;
-            info.source[to] = info.source[v];
-
-            q.push(to);
-        }
+    GraphBFS(const Graph &graph, const int s) {
+        build(graph, s);
     }
 
-    return info;
-}
+    void build(const Graph &graph, int s) {
+        graph_ref = &graph;
+        const auto &g = graph.graph;
+        const int n = graph.size();
 
-inline V<int> restore_path(const Graph &graph, const V<int> &parent, int s, int t) {
-    V<int> path;
+        s = graph.to_internal(s);
 
-    s = graph.to_internal(s);
-    t = graph.to_internal(t);
+        dist.assign(n, -1);
+        parent.assign(n, -1);
+        source.assign(n, -1);
+        order.clear();
+        order.reserve(n);
 
-    if (s == t) {
-        path.push_back(s);
-    } else {
-        if (parent[t] == -1) return {};
+        queue<int> q;
+
+        dist[s] = 0;
+        source[s] = s;
+        q.push(s);
+
+        run_bfs(q, g);
+    }
+
+    void build_multi(const Graph &graph, const V<int> &starts) {
+        graph_ref = &graph;
+        const auto &g = graph.graph;
+        const int n = graph.size();
+
+        dist.assign(n, -1);
+        parent.assign(n, -1);
+        source.assign(n, -1);
+        order.clear();
+        order.reserve(n);
+
+        queue<int> q;
+
+        for (int s : starts) {
+            s = graph.to_internal(s);
+
+            if (dist[s] != -1) continue;
+
+            dist[s] = 0;
+            source[s] = s;
+            q.push(s);
+        }
+
+        run_bfs(q, g);
+    }
+
+    V<int> path(int t) const {
+        const Graph &graph = *graph_ref;
+        t = graph.to_internal(t);
+
+        if (source[t] == -1) return {};
+
+        V<int> res;
+        const int s = source[t];
 
         for (int v = t; v != -1; v = parent[v]) {
-            path.push_back(v);
+            res.push_back(v);
             if (v == s) break;
         }
 
-        if (path.back() != s) return {};
+        if (res.back() != s) return {};
 
-        reverse(all(path));
-    }
-
-    for (auto &v : path) {
-        v = graph.to_external(v);
-    }
-
-    return path;
-}
-
-inline BFS_Info bfs_multi(const Graph &graph, const V<int> &starts) {
-    BFS_Info info;
-
-    const auto &g = graph.graph;
-    const int n = graph.size();
-
-    info.dist.assign(n, -1);
-    info.parent.assign(n, -1);
-    info.source.assign(n, -1);
-    info.order.reserve(n);
-
-    queue<int> q;
-
-    for (int s : starts) {
-        s = graph.to_internal(s);
-
-        if (info.dist[s] != -1) continue;
-
-        info.dist[s] = 0;
-        info.source[s] = s;
-        q.push(s);
-    }
-
-    while (!q.empty()) {
-        const int v = q.front();
-        q.pop();
-
-        info.order.push_back(v);
-
-        for (const auto &e : g[v]) {
-            const int to = e.to;
-
-            if (info.dist[to] != -1) continue;
-
-            info.dist[to] = info.dist[v] + 1;
-            info.parent[to] = v;
-            info.source[to] = info.source[v];
-
-            q.push(to);
+        reverse(all(res));
+        for (auto &v : res) {
+            v = graph.to_external(v);
         }
+        return res;
     }
 
-    return info;
-}
-
-// ============== 連結成分 ==============
-struct CC_Info {
-    V<int> comp_id;
-    V<int> comp_size;
-    int comp_cnt = 0;
-};
-
-inline CC_Info connected_components(const Graph &graph) {
-    CC_Info info;
-
-    const auto &g = graph.graph;
-    const int n = graph.size();
-
-    info.comp_id.assign(n, -1);
-
-    rep(s, n) {
-        if (info.comp_id[s] != -1) continue;
-
-        queue<int> q;
-        q.push(s);
-        info.comp_id[s] = info.comp_cnt;
-
-        int sz = 0;
-
+private:
+    void run_bfs(queue<int> &q, const V<V<Edge>> &g) {
         while (!q.empty()) {
             const int v = q.front();
             q.pop();
 
-            sz++;
+            order.push_back(v);
 
             for (const auto &e : g[v]) {
                 const int to = e.to;
+                if (dist[to] != -1) continue;
 
-                if (info.comp_id[to] != -1) continue;
+                dist[to] = dist[v] + 1;
+                parent[to] = v;
+                source[to] = source[v];
 
-                info.comp_id[to] = info.comp_cnt;
                 q.push(to);
             }
         }
+    }
+};
 
-        info.comp_size.push_back(sz);
-        info.comp_cnt++;
+// ============== 連結成分 ==============
+struct ConnectedComponents {
+    const Graph *graph_ref = nullptr;
+    V<int> comp_id;
+    V<int> comp_size;
+    int comp_cnt = 0;
+
+    ConnectedComponents() = default;
+
+    explicit ConnectedComponents(const Graph &graph) {
+        build(graph);
     }
 
-    return info;
-}
+    void build(const Graph &graph) {
+        graph_ref = &graph;
+        const auto &g = graph.graph;
+        const int n = graph.size();
+
+        comp_id.assign(n, -1);
+        comp_size.clear();
+        comp_cnt = 0;
+
+        rep(s, n) {
+            if (comp_id[s] != -1) continue;
+
+            queue<int> q;
+            q.push(s);
+            comp_id[s] = comp_cnt;
+
+            int sz = 0;
+
+            while (!q.empty()) {
+                const int v = q.front();
+                q.pop();
+
+                sz++;
+
+                for (const auto &e : g[v]) {
+                    const int to = e.to;
+
+                    if (comp_id[to] != -1) continue;
+
+                    comp_id[to] = comp_cnt;
+                    q.push(to);
+                }
+            }
+
+            comp_size.push_back(sz);
+            comp_cnt++;
+        }
+    }
+
+    bool same(int a, int b) const {
+        const Graph &graph = *graph_ref;
+        a = graph.to_internal(a);
+        b = graph.to_internal(b);
+        return comp_id[a] == comp_id[b];
+    }
+
+    int size(int v) const {
+        const Graph &graph = *graph_ref;
+        v = graph.to_internal(v);
+        return comp_size[comp_id[v]];
+    }
+
+    int count() const {
+        return comp_cnt;
+    }
+};
 
 // ===== bundled from library/shortest_path.hpp =====
 // Shortest path algorithms for Graph.
 
 
 // ============== Dijkstra ==============
-struct Dijkstra_Info {
+struct Dijkstra {
+    const Graph *graph_ref = nullptr;
+    int source = -1;
     V<ll> dist;
     V<int> parent;
     V<int> order;
-};
 
-inline Dijkstra_Info dijkstra(const Graph &graph, int s) {
-    Dijkstra_Info info;
+    Dijkstra() = default;
 
-    const auto &g = graph.graph;
-    const int n = graph.size();
+    Dijkstra(const Graph &graph, const int s) {
+        build(graph, s);
+    }
 
-    s = graph.to_internal(s);
+    void build(const Graph &graph, int s) {
+        graph_ref = &graph;
+        const auto &g = graph.graph;
+        const int n = graph.size();
 
-    info.dist.assign(n, INF_L);
-    info.parent.assign(n, -1);
-    info.order.reserve(n);
+        s = graph.to_internal(s);
+        source = s;
 
-    minpq<pair<ll, int>> pq;
+        dist.assign(n, INF_L);
+        parent.assign(n, -1);
+        order.clear();
+        order.reserve(n);
 
-    info.dist[s] = 0;
-    pq.emplace(0, s);
+        minpq<pair<ll, int>> pq;
 
-    while (!pq.empty()) {
-        const auto [d, v] = pq.top();
-        pq.pop();
+        dist[s] = 0;
+        pq.emplace(0, s);
 
-        if (d != info.dist[v]) continue;
+        while (!pq.empty()) {
+            const auto [d, v] = pq.top();
+            pq.pop();
 
-        info.order.push_back(v);
+            if (d != dist[v]) continue;
 
-        for (const auto &e : g[v]) {
-            const int to = e.to;
-            const ll nd = info.dist[v] + e.w;
+            order.push_back(v);
 
-            if (info.dist[to] <= nd) continue;
+            for (const auto &e : g[v]) {
+                const int to = e.to;
+                const ll nd = dist[v] + e.w;
 
-            info.dist[to] = nd;
-            info.parent[to] = v;
+                if (dist[to] <= nd) continue;
 
-            pq.emplace(nd, to);
+                dist[to] = nd;
+                parent[to] = v;
+
+                pq.emplace(nd, to);
+            }
         }
     }
 
-    return info;
-}
+    ll distance(int t) const {
+        const Graph &graph = *graph_ref;
+        t = graph.to_internal(t);
+        return dist[t];
+    }
 
-inline V<int> restore_shortest_path(const Graph &graph, const V<int> &parent, int s, int t) {
-    V<int> path;
+    bool reachable(int t) const {
+        return distance(t) != INF_L;
+    }
 
-    s = graph.to_internal(s);
-    t = graph.to_internal(t);
+    V<int> path(int t) const {
+        const Graph &graph = *graph_ref;
+        t = graph.to_internal(t);
 
-    if (s == t) {
-        path.push_back(s);
-    } else {
+        if (t == source) return V<int>{graph.to_external(source)};
         if (parent[t] == -1) return {};
 
+        V<int> res;
+
         for (int v = t; v != -1; v = parent[v]) {
-            path.push_back(v);
-            if (v == s) break;
+            res.push_back(v);
+            if (v == source) break;
         }
 
-        if (path.back() != s) return {};
+        if (res.back() != source) return {};
 
-        reverse(all(path));
+        reverse(all(res));
+
+        for (auto &v : res) {
+            v = graph.to_external(v);
+        }
+
+        return res;
     }
-
-    for (auto &v : path) {
-        v = graph.to_external(v);
-    }
-
-    return path;
-}
+};
 
 // ============== 解答用 ==============
 #ifndef MULTI_TEST_CASES

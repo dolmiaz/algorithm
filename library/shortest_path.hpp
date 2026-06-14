@@ -4,77 +4,91 @@
 #include "graph.hpp"
 
 // ============== Dijkstra ==============
-struct Dijkstra_Info {
+struct Dijkstra {
+    const Graph *graph_ref = nullptr;
+    int source = -1;
     V<ll> dist;
     V<int> parent;
     V<int> order;
-};
 
-inline Dijkstra_Info dijkstra(const Graph &graph, int s) {
-    Dijkstra_Info info;
+    Dijkstra() = default;
 
-    const auto &g = graph.graph;
-    const int n = graph.size();
+    Dijkstra(const Graph &graph, const int s) {
+        build(graph, s);
+    }
 
-    s = graph.to_internal(s);
+    void build(const Graph &graph, int s) {
+        graph_ref = &graph;
+        const auto &g = graph.graph;
+        const int n = graph.size();
 
-    info.dist.assign(n, INF_L);
-    info.parent.assign(n, -1);
-    info.order.reserve(n);
+        s = graph.to_internal(s);
+        source = s;
 
-    minpq<pair<ll, int>> pq;
+        dist.assign(n, INF_L);
+        parent.assign(n, -1);
+        order.clear();
+        order.reserve(n);
 
-    info.dist[s] = 0;
-    pq.emplace(0, s);
+        minpq<pair<ll, int>> pq;
 
-    while (!pq.empty()) {
-        const auto [d, v] = pq.top();
-        pq.pop();
+        dist[s] = 0;
+        pq.emplace(0, s);
 
-        if (d != info.dist[v]) continue;
+        while (!pq.empty()) {
+            const auto [d, v] = pq.top();
+            pq.pop();
 
-        info.order.push_back(v);
+            if (d != dist[v]) continue;
 
-        for (const auto &e : g[v]) {
-            const int to = e.to;
-            const ll nd = info.dist[v] + e.w;
+            order.push_back(v);
 
-            if (info.dist[to] <= nd) continue;
+            for (const auto &e : g[v]) {
+                const int to = e.to;
+                const ll nd = dist[v] + e.w;
 
-            info.dist[to] = nd;
-            info.parent[to] = v;
+                if (dist[to] <= nd) continue;
 
-            pq.emplace(nd, to);
+                dist[to] = nd;
+                parent[to] = v;
+
+                pq.emplace(nd, to);
+            }
         }
     }
 
-    return info;
-}
+    ll distance(int t) const {
+        const Graph &graph = *graph_ref;
+        t = graph.to_internal(t);
+        return dist[t];
+    }
 
-inline V<int> restore_shortest_path(const Graph &graph, const V<int> &parent, int s, int t) {
-    V<int> path;
+    bool reachable(int t) const {
+        return distance(t) != INF_L;
+    }
 
-    s = graph.to_internal(s);
-    t = graph.to_internal(t);
+    V<int> path(int t) const {
+        const Graph &graph = *graph_ref;
+        t = graph.to_internal(t);
 
-    if (s == t) {
-        path.push_back(s);
-    } else {
+        if (t == source) return V<int>{graph.to_external(source)};
         if (parent[t] == -1) return {};
 
+        V<int> res;
+
         for (int v = t; v != -1; v = parent[v]) {
-            path.push_back(v);
-            if (v == s) break;
+            res.push_back(v);
+            if (v == source) break;
         }
 
-        if (path.back() != s) return {};
+        if (res.back() != source) return {};
 
-        reverse(all(path));
+        reverse(all(res));
+
+        for (auto &v : res) {
+            v = graph.to_external(v);
+        }
+
+        return res;
     }
-
-    for (auto &v : path) {
-        v = graph.to_external(v);
-    }
-
-    return path;
-}
+};

@@ -4,43 +4,59 @@
 #include "basic.hpp"
 
 // ============== 二分探索 ==============
-// return -> 0-indexed
-template <class T, class F> int binary_search_index(const V<F> &vec, T x) {
-    int pos = lower_bound(all(vec), x) - vec.begin();
-    if (pos < static_cast<int>(vec.size()) && vec[pos] == x) return pos;
-    return -1;
-}
 template <class T>
-int first_ge(const V<T>& a, T x) {
-    return lower_bound(all(a), x) - a.begin();
-}
-template <class T>
-int first_gt(const V<T>& a, T x) {
-    return upper_bound(all(a), x) - a.begin();
-}
-template <class T>
-int last_lt(const V<T>& a, T x) {
-    int p = lower_bound(all(a), x) - a.begin();
-    return p - 1;
-}
-template <class T>
-int last_le(const V<T>& a, T x) {
-    int p = upper_bound(all(a), x) - a.begin();
-    return p - 1;
-}
-template <class T, class F> T binary_search_min(T ok, T ng, F pred) {
-    while (abs(ok - ng) > 1) {
-        T mid = ng + (ok - ng) / 2;
-        if (pred(mid)) ok = mid;
-        else ng = mid;
+struct BinarySearch {
+    V<T> a;
+
+    BinarySearch() = default;
+
+    explicit BinarySearch(const V<T> &sorted_vec) {
+        build(sorted_vec);
     }
-    return ok;
-}
-template <class T, class F> T binary_search_max(T ok, T ng, F pred) {
-    while (abs(ng - ok) > 1) {
-        T mid = ok + (ng - ok) / 2;
-        if (pred(mid)) ok = mid;
-        else ng = mid;
+
+    void build(const V<T> &sorted_vec) {
+        a = sorted_vec;
     }
-    return ok;
-}
+
+    int index(const T &x) const {
+        const int pos = lower_bound(all(a), x) - a.begin();
+        if (pos < static_cast<int>(a.size()) && a[pos] == x) return pos;
+        return -1;
+    }
+
+    int first_ge(const T &x) const {
+        return lower_bound(all(a), x) - a.begin();
+    }
+
+    int first_gt(const T &x) const {
+        return upper_bound(all(a), x) - a.begin();
+    }
+
+    int last_lt(const T &x) const {
+        return first_ge(x) - 1;
+    }
+
+    int last_le(const T &x) const {
+        return first_gt(x) - 1;
+    }
+
+    template <class U, class F>
+    static U min_true(U ok, U ng, F pred) {
+        while (abs(ok - ng) > 1) {
+            U mid = ng + (ok - ng) / 2;
+            if (pred(mid)) ok = mid;
+            else ng = mid;
+        }
+        return ok;
+    }
+
+    template <class U, class F>
+    static U max_true(U ok, U ng, F pred) {
+        while (abs(ng - ok) > 1) {
+            U mid = ok + (ng - ok) / 2;
+            if (pred(mid)) ok = mid;
+            else ng = mid;
+        }
+        return ok;
+    }
+};

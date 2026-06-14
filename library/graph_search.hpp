@@ -6,212 +6,228 @@
 
 // ============== グラフアルゴリズム ==============
 // ============== DFS ==============
-struct DFS_Info {
+struct GraphDFS {
+    const Graph *graph_ref = nullptr;
     V<int> used, parent, tin, tout, comp_id, order;
     int comp_cnt = 0;
     int timer = 0;
-};
 
-inline DFS_Info dfs_all(const Graph &graph) {
-    DFS_Info info;
+    GraphDFS() = default;
 
-    const auto &g = graph.graph;
-    const int n = graph.size();
-
-    info.used.assign(n, 0);
-    info.parent.assign(n, -1);
-    info.tin.assign(n, -1);
-    info.tout.assign(n, -1);
-    info.comp_id.assign(n, -1);
-    info.order.reserve(n);
-
-    const auto dfs = yc([&](auto self, int v, const int p) -> void {
-        info.used[v] = 1;
-        info.parent[v] = p;
-        info.tin[v] = info.timer++;
-        info.comp_id[v] = info.comp_cnt;
-        info.order.push_back(v);
-
-        for (const auto &e : g[v]) {
-            const int to = e.to;
-            if (info.used[to]) continue;
-            self(to, v);
-        }
-
-        info.tout[v] = info.timer;
-    });
-
-    rep(v, n) {
-        if (info.used[v]) continue;
-        dfs(v, -1);
-        info.comp_cnt++;
+    explicit GraphDFS(const Graph &graph) {
+        build_all(graph);
     }
 
-    return info;
-}
+    void build_all(const Graph &graph) {
+        graph_ref = &graph;
+        const auto &g = graph.graph;
+        const int n = graph.size();
+
+        used.assign(n, 0);
+        parent.assign(n, -1);
+        tin.assign(n, -1);
+        tout.assign(n, -1);
+        comp_id.assign(n, -1);
+        order.clear();
+        order.reserve(n);
+        comp_cnt = 0;
+        timer = 0;
+
+        const auto dfs = yc([&](auto self, int v, const int p) -> void {
+            used[v] = 1;
+            parent[v] = p;
+            tin[v] = timer++;
+            comp_id[v] = comp_cnt;
+            order.push_back(v);
+
+            for (const auto &e : g[v]) {
+                const int to = e.to;
+                if (used[to]) continue;
+                self(to, v);
+            }
+
+            tout[v] = timer;
+        });
+
+        rep(v, n) {
+            if (used[v]) continue;
+            dfs(v, -1);
+            comp_cnt++;
+        }
+    }
+};
 
 // ============== BFS ==============
-struct BFS_Info {
+struct GraphBFS {
+    const Graph *graph_ref = nullptr;
     V<int> dist, parent;
     V<int> order, source;
-};
 
-inline BFS_Info bfs(const Graph &graph, int s) {
-    BFS_Info info;
+    GraphBFS() = default;
 
-    const auto &g = graph.graph;
-    const int n = graph.size();
-
-    s = graph.to_internal(s);
-
-    info.dist.assign(n, -1);
-    info.parent.assign(n, -1);
-    info.source.assign(n, -1);
-    info.order.reserve(n);
-
-    queue<int> q;
-
-    info.dist[s] = 0;
-    info.source[s] = s;
-    q.push(s);
-
-    while (!q.empty()) {
-        const int v = q.front();
-        q.pop();
-
-        info.order.push_back(v);
-
-        for (const auto &e : g[v]) {
-            const int to = e.to;
-            if (info.dist[to] != -1) continue;
-
-            info.dist[to] = info.dist[v] + 1;
-            info.parent[to] = v;
-            info.source[to] = info.source[v];
-
-            q.push(to);
-        }
+    GraphBFS(const Graph &graph, const int s) {
+        build(graph, s);
     }
 
-    return info;
-}
+    void build(const Graph &graph, int s) {
+        graph_ref = &graph;
+        const auto &g = graph.graph;
+        const int n = graph.size();
 
-inline V<int> restore_path(const Graph &graph, const V<int> &parent, int s, int t) {
-    V<int> path;
+        s = graph.to_internal(s);
 
-    s = graph.to_internal(s);
-    t = graph.to_internal(t);
+        dist.assign(n, -1);
+        parent.assign(n, -1);
+        source.assign(n, -1);
+        order.clear();
+        order.reserve(n);
 
-    if (s == t) {
-        path.push_back(s);
-    } else {
-        if (parent[t] == -1) return {};
+        queue<int> q;
+
+        dist[s] = 0;
+        source[s] = s;
+        q.push(s);
+
+        run_bfs(q, g);
+    }
+
+    void build_multi(const Graph &graph, const V<int> &starts) {
+        graph_ref = &graph;
+        const auto &g = graph.graph;
+        const int n = graph.size();
+
+        dist.assign(n, -1);
+        parent.assign(n, -1);
+        source.assign(n, -1);
+        order.clear();
+        order.reserve(n);
+
+        queue<int> q;
+
+        for (int s : starts) {
+            s = graph.to_internal(s);
+
+            if (dist[s] != -1) continue;
+
+            dist[s] = 0;
+            source[s] = s;
+            q.push(s);
+        }
+
+        run_bfs(q, g);
+    }
+
+    V<int> path(int t) const {
+        const Graph &graph = *graph_ref;
+        t = graph.to_internal(t);
+
+        if (source[t] == -1) return {};
+
+        V<int> res;
+        const int s = source[t];
 
         for (int v = t; v != -1; v = parent[v]) {
-            path.push_back(v);
+            res.push_back(v);
             if (v == s) break;
         }
 
-        if (path.back() != s) return {};
+        if (res.back() != s) return {};
 
-        reverse(all(path));
-    }
-
-    for (auto &v : path) {
-        v = graph.to_external(v);
-    }
-
-    return path;
-}
-
-inline BFS_Info bfs_multi(const Graph &graph, const V<int> &starts) {
-    BFS_Info info;
-
-    const auto &g = graph.graph;
-    const int n = graph.size();
-
-    info.dist.assign(n, -1);
-    info.parent.assign(n, -1);
-    info.source.assign(n, -1);
-    info.order.reserve(n);
-
-    queue<int> q;
-
-    for (int s : starts) {
-        s = graph.to_internal(s);
-
-        if (info.dist[s] != -1) continue;
-
-        info.dist[s] = 0;
-        info.source[s] = s;
-        q.push(s);
-    }
-
-    while (!q.empty()) {
-        const int v = q.front();
-        q.pop();
-
-        info.order.push_back(v);
-
-        for (const auto &e : g[v]) {
-            const int to = e.to;
-
-            if (info.dist[to] != -1) continue;
-
-            info.dist[to] = info.dist[v] + 1;
-            info.parent[to] = v;
-            info.source[to] = info.source[v];
-
-            q.push(to);
+        reverse(all(res));
+        for (auto &v : res) {
+            v = graph.to_external(v);
         }
+        return res;
     }
 
-    return info;
-}
-
-// ============== 連結成分 ==============
-struct CC_Info {
-    V<int> comp_id;
-    V<int> comp_size;
-    int comp_cnt = 0;
-};
-
-inline CC_Info connected_components(const Graph &graph) {
-    CC_Info info;
-
-    const auto &g = graph.graph;
-    const int n = graph.size();
-
-    info.comp_id.assign(n, -1);
-
-    rep(s, n) {
-        if (info.comp_id[s] != -1) continue;
-
-        queue<int> q;
-        q.push(s);
-        info.comp_id[s] = info.comp_cnt;
-
-        int sz = 0;
-
+private:
+    void run_bfs(queue<int> &q, const V<V<Edge>> &g) {
         while (!q.empty()) {
             const int v = q.front();
             q.pop();
 
-            sz++;
+            order.push_back(v);
 
             for (const auto &e : g[v]) {
                 const int to = e.to;
+                if (dist[to] != -1) continue;
 
-                if (info.comp_id[to] != -1) continue;
+                dist[to] = dist[v] + 1;
+                parent[to] = v;
+                source[to] = source[v];
 
-                info.comp_id[to] = info.comp_cnt;
                 q.push(to);
             }
         }
+    }
+};
 
-        info.comp_size.push_back(sz);
-        info.comp_cnt++;
+// ============== 連結成分 ==============
+struct ConnectedComponents {
+    const Graph *graph_ref = nullptr;
+    V<int> comp_id;
+    V<int> comp_size;
+    int comp_cnt = 0;
+
+    ConnectedComponents() = default;
+
+    explicit ConnectedComponents(const Graph &graph) {
+        build(graph);
     }
 
-    return info;
-}
+    void build(const Graph &graph) {
+        graph_ref = &graph;
+        const auto &g = graph.graph;
+        const int n = graph.size();
+
+        comp_id.assign(n, -1);
+        comp_size.clear();
+        comp_cnt = 0;
+
+        rep(s, n) {
+            if (comp_id[s] != -1) continue;
+
+            queue<int> q;
+            q.push(s);
+            comp_id[s] = comp_cnt;
+
+            int sz = 0;
+
+            while (!q.empty()) {
+                const int v = q.front();
+                q.pop();
+
+                sz++;
+
+                for (const auto &e : g[v]) {
+                    const int to = e.to;
+
+                    if (comp_id[to] != -1) continue;
+
+                    comp_id[to] = comp_cnt;
+                    q.push(to);
+                }
+            }
+
+            comp_size.push_back(sz);
+            comp_cnt++;
+        }
+    }
+
+    bool same(int a, int b) const {
+        const Graph &graph = *graph_ref;
+        a = graph.to_internal(a);
+        b = graph.to_internal(b);
+        return comp_id[a] == comp_id[b];
+    }
+
+    int size(int v) const {
+        const Graph &graph = *graph_ref;
+        v = graph.to_internal(v);
+        return comp_size[comp_id[v]];
+    }
+
+    int count() const {
+        return comp_cnt;
+    }
+};

@@ -157,39 +157,40 @@ int main() {
     assert(read_one_row_walls.h.empty());
 
     Grid bfs_grid(3, 3);
-    auto bfs_info = grid_bfs(bfs_grid, {0, 0});
+    GridBFS bfs_info(bfs_grid, {0, 0});
     assert(bfs_info.dist[0][0] == 0);
     assert(bfs_info.dist[2][2] == 4);
     assert((bfs_info.parent[0][0] == pii{-1, -1}));
     assert(bfs_info.parent_dir[0][0] == -1);
-    assert((restore_grid_path(bfs_info.parent, {0, 0}, {2, 2}) == V<pii>{pii{0, 0}, pii{0, 1}, pii{0, 2}, pii{1, 2}, pii{2, 2}}));
-    assert(restore_grid_moves4(bfs_info.parent_dir, {0, 0}, {2, 2}) == "RRDD");
-    assert((restore_grid_path(bfs_info.parent, {0, 0}, {0, 0}) == V<pii>{pii{0, 0}}));
-    assert(restore_grid_moves4(bfs_info.parent_dir, {0, 0}, {0, 0}).empty());
+    assert((bfs_info.path({2, 2}) == V<pii>{pii{0, 0}, pii{0, 1}, pii{0, 2}, pii{1, 2}, pii{2, 2}}));
+    assert(bfs_info.moves4({2, 2}) == "RRDD");
+    assert((bfs_info.path({0, 0}) == V<pii>{pii{0, 0}}));
+    assert(bfs_info.moves4({0, 0}).empty());
 
     Grid blocked(3, 3);
     blocked.cell[0][1] = '#';
     blocked.cell[1][1] = '#';
     blocked.cell[2][1] = '#';
-    auto blocked_info = grid_bfs(blocked, {0, 0});
+    GridBFS blocked_info(blocked, {0, 0});
     assert(blocked_info.dist[2][2] == -1);
     assert((blocked_info.parent[2][2] == pii{-1, -1}));
     assert(blocked_info.parent_dir[2][2] == -1);
-    assert(restore_grid_path(blocked_info.parent, {0, 0}, {2, 2}).empty());
-    assert(restore_grid_moves4(blocked_info.parent_dir, {0, 0}, {2, 2}).empty());
+    assert(blocked_info.path({2, 2}).empty());
+    assert(blocked_info.moves4({2, 2}).empty());
 
     Grid walled(2, 2);
     walled.v[0][0] = '1';
     walled.h[0][0] = '1';
-    auto walled_info = grid_bfs(walled, {0, 0});
+    GridBFS walled_info(walled, {0, 0});
     assert(walled_info.dist[0][0] == 0);
     assert(walled_info.dist[0][1] == -1);
     assert(walled_info.dist[1][0] == -1);
     assert(walled_info.dist[1][1] == -1);
 
-    V<V<int>> bad_dirs(2, V<int>(2, -1));
-    bad_dirs[0][1] = 9;
-    assert(restore_grid_moves4(bad_dirs, {0, 0}, {0, 1}).empty());
+    GridBFS bad_dirs(walled, {0, 0});
+    bad_dirs.parent_dir.assign(2, V<int>(2, -1));
+    bad_dirs.parent_dir[0][1] = 9;
+    assert(bad_dirs.moves4({0, 1}).empty());
 
     return 0;
 }
