@@ -12,11 +12,16 @@ tests=(
     verify/cumsum_test.cpp
     verify/imos_test.cpp
     verify/fenwick_test.cpp
+    verify/number_theory_test.cpp
+    verify/modint_linear_test.cpp
+    verify/convolution_fps_test.cpp
+    verify/bit_transform_test.cpp
     verify/compress.cpp
     verify/dsu_test.cpp
     verify/graph_search_test.cpp
     verify/shortest_path_test.cpp
     verify/dag_test.cpp
+    verify/coloring_test.cpp
 )
 
 for file in "${tests[@]}"; do

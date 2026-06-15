@@ -1,11 +1,14 @@
 #include <algorithm>
 #include <array>
 #include <bits/stdc++.h>
+#include <chrono>
 #include <cmath>
+#include <complex>
 #include <functional>
 #include <iostream>
 #include <limits>
 #include <queue>
+#include <random>
 #include <string>
 #include <utility>
 #include <vector>
@@ -21,8 +24,10 @@ using namespace std;
 using ll = long long;
 using ull = unsigned long long;
 using ld = long double;
-template <typename T> using V = vector<T>;
-template <typename T> using minpq = priority_queue<T, V<T>, greater<T>>;
+template <typename T>
+using V = vector<T>;
+template <typename T>
+using minpq = priority_queue<T, V<T>, greater<T>>;
 using maxpq_ll = priority_queue<ll>;
 using pii = pair<int, int>;
 using pll = pair<ll, ll>;
@@ -50,30 +55,41 @@ constexpr ll modNum = 998244353;
 
 
 // ============== ユーティリティ ==============
-template <class T, class U> bool chmin(T &a, const U &b) {
+template <class T, class U>
+bool chmin(T& a, const U& b) {
     if (a > b) {
         a = b;
         return true;
     }
     return false;
 }
-template <class T, class U> bool chmax(T &a, const U &b) {
+
+template <class T, class U>
+bool chmax(T& a, const U& b) {
     if (a < b) {
         a = b;
         return true;
     }
     return false;
 }
-template <class T> int sgn(T x) { return (x > 0) - (x < 0); }
-template <class T> T clampv(T x, T lo, T hi) { return x < lo ? lo : (x > hi ? hi : x); }
-template <class T> T ceil_div(T a, T b) {
+
+template <class T>
+int sgn(T x) { return (x > 0) - (x < 0); }
+
+template <class T>
+T clampv(T x, T lo, T hi) { return x < lo ? lo : (x > hi ? hi : x); }
+
+template <class T>
+T ceil_div(T a, T b) {
     if (b < 0)
         a = -a, b = -b;
     if (a >= 0)
         return (a + b - 1) / b;
     return a / b;
 }
-template <class T> T floor_div(T a, T b) {
+
+template <class T>
+T floor_div(T a, T b) {
     if (b < 0)
         a = -a, b = -b;
     if (a >= 0)
@@ -82,43 +98,60 @@ template <class T> T floor_div(T a, T b) {
 }
 
 // ============== printヘルパ ==============
-template <class T> void print_one(const T &x) { cout << x; }
-template <class T, class... Ts> void print_one(const T &x, const Ts &...xs) {
+template <class T>
+void print_one(const T& x) { cout << x; }
+
+template <class T, class... Ts>
+void print_one(const T& x, const Ts&... xs) {
     cout << x << ' ';
     print_one(xs...);
 }
+
 inline void println() {
     cout << '\n';
 }
-template <class T, class... Ts> void println(const T &x, const Ts &...xs) {
+
+template <class T, class... Ts>
+void println(const T& x, const Ts&... xs) {
     cout << x;
     ((cout << ' ' << xs), ...);
     cout << '\n';
 }
-template <class T> void printAll(const V<T> &t) {
+
+template <class T>
+void printAll(const V<T>& t) {
     rep(i, t.size()) cout << t[i] << '\n';
 }
+
 inline void yes(const bool c = true) { cout << (c ? "Yes" : "No") << '\n'; }
 inline void YES(const bool c = true) { cout << (c ? "YES" : "NO") << '\n'; }
 
 // ============== 数学ヘルパ ==============
 // Sum of 0...(x-1)
-template <class T> T tri0(T x) {
+template <class T>
+T tri0(T x) {
     return x * (x - 1) / 2;
 }
+
 // Sum of 1...x
-template <class T> T tri1(T x) {
+template <class T>
+T tri1(T x) {
     return (x + 1) * x / 2;
 }
 
 // ============== 再帰ラムダ ==============
-template <class F> struct y_combinator {
+template <class F>
+struct y_combinator {
     F f;
-    template <class... Args> decltype(auto) operator()(Args &&...args) const {
+
+    template <class... Args>
+    decltype(auto) operator()(Args&&... args) const {
         return f(*this, std::forward<Args>(args)...);
     }
 };
-template <class F> y_combinator<F> yc(F &&f) { return {std::forward<F>(f)}; }
+
+template <class F>
+y_combinator<F> yc(F&& f) { return {std::forward<F>(f)}; }
 
 // ===== Grid =====
 
@@ -131,8 +164,8 @@ inline constexpr array<int, 4> DR4 = {-1, 0, 1, 0};
 inline constexpr array<int, 4> DC4 = {0, 1, 0, -1};
 inline constexpr array<char, 4> DIR4 = {'U', 'R', 'D', 'L'};
 inline constexpr array<char, 4> dir4 = {'u', 'r', 'd', 'l'};
-inline constexpr array<int, 8> DR8 = {-1, -1, 0, 1, 1,  1, 0, -1};
-inline constexpr array<int, 8> DC8 = { 0,  1, 1, 1, 0, -1, -1, -1};
+inline constexpr array<int, 8> DR8 = {-1, -1, 0, 1, 1, 1, 0, -1};
+inline constexpr array<int, 8> DC8 = {0, 1, 1, 1, 0, -1, -1, -1};
 inline const array<string, 8> DIR8 = {"U", "UR", "R", "DR", "D", "DL", "L", "UL"};
 inline const array<string, 8> dir8 = {"u", "ur", "r", "dr", "d", "dl", "l", "ul"};
 
@@ -149,26 +182,28 @@ struct Grid {
 
     Grid() = default;
 
-    Grid(const int H_, const int W_, const char block_ = '#', const char wall_ = '1'):
-    H(H_), W(W_),
-    cell(H, string(W, '.')),
-    v(H, string(max(0, W - 1), '0')),
-    h(max(0, H - 1), string(W, '0')),
-    block(block_), wall(wall_) {}
+    Grid(const int H_, const int W_, const char block_ = '#', const char wall_ = '1') :
+        H(H_), W(W_),
+        cell(H, string(W, '.')),
+        v(H, string(max(0, W - 1), '0')),
+        h(max(0, H - 1), string(W, '0')),
+        block(block_), wall(wall_) {
+    }
 
     Grid(
         const int H_,
         const int W_,
-        const V<string> &v_,
-        const V<string> &h_,
+        const V<string>& v_,
+        const V<string>& h_,
         const char block_ = '#',
         const char wall_ = '1'
-    ):  H(H_), W(W_),
+    ) : H(H_), W(W_),
         cell(H_, string(W_, '.')),
         v(v_),
         h(h_),
         block(block_),
-        wall(wall_) {}
+        wall(wall_) {
+    }
 
     [[nodiscard]] bool in(const int i, const int j) const {
         return in_grid(i, j, H, W);
@@ -258,7 +293,7 @@ inline Grid read_grid_with_walls(const int H, const int W, const char wall = '1'
 
 
 struct GridBFS {
-    const Grid *grid = nullptr;
+    const Grid* grid = nullptr;
     pii source = {-1, -1};
     V<V<int>> dist;
     V<V<pii>> parent;
@@ -266,11 +301,11 @@ struct GridBFS {
 
     GridBFS() = default;
 
-    GridBFS(const Grid &g, const pii& s) {
+    GridBFS(const Grid& g, const pii& s) {
         build(g, s);
     }
 
-    void build(const Grid &g, const pii& s) {
+    void build(const Grid& g, const pii& s) {
         grid = &g;
         source = s;
 
@@ -360,13 +395,14 @@ struct PrefixSum1D {
     int size{};
     V<T> ps;
 
-    PrefixSum1D() : size(0), ps(1, T{}) {}
+    PrefixSum1D() : size(0), ps(1, T{}) {
+    }
 
-    explicit PrefixSum1D(const V<T> &vec) {
+    explicit PrefixSum1D(const V<T>& vec) {
         build(vec);
     }
 
-    void build(const V<T> &vec) {
+    void build(const V<T>& vec) {
         size = static_cast<int>(vec.size());
         ps.assign(size + 1, T{});
         rep(i, size) ps[i + 1] = ps[i] + vec[i];
@@ -386,13 +422,14 @@ struct PrefixSum2D {
     int H{}, W{};
     V<V<T>> ps;
 
-    PrefixSum2D() : H(0), W(0), ps(1, V<T>(1, T{})) {}
+    PrefixSum2D() : H(0), W(0), ps(1, V<T>(1, T{})) {
+    }
 
-    explicit PrefixSum2D(const V<V<T>> &grid) {
+    explicit PrefixSum2D(const V<V<T>>& grid) {
         build(grid);
     }
 
-    void build(const V<V<T>> &grid) {
+    void build(const V<V<T>>& grid) {
         H = static_cast<int>(grid.size());
         W = H == 0 ? 0 : static_cast<int>(grid[0].size());
         ps.assign(H + 1, V<T>(W + 1, T{}));
@@ -415,13 +452,14 @@ struct PrefixMax1D {
     int size{};
     V<T> pref, suff;
 
-    PrefixMax1D() : size(0), pref(1, numeric_limits<T>::lowest()), suff(1, numeric_limits<T>::lowest()) {}
+    PrefixMax1D() : size(0), pref(1, numeric_limits<T>::lowest()), suff(1, numeric_limits<T>::lowest()) {
+    }
 
-    explicit PrefixMax1D(const V<T> &vec) {
+    explicit PrefixMax1D(const V<T>& vec) {
         build(vec);
     }
 
-    void build(const V<T> &vec) {
+    void build(const V<T>& vec) {
         size = static_cast<int>(vec.size());
         pref.assign(size + 1, numeric_limits<T>::lowest());
         suff.assign(size + 1, numeric_limits<T>::lowest());
@@ -446,7 +484,8 @@ struct Imos1D {
     V<T> diff;
     bool built = false;
 
-    explicit Imos1D(int _n) : n(_n), diff(_n + 1, T{}) {}
+    explicit Imos1D(int _n) : n(_n), diff(_n + 1, T{}) {
+    }
 
     // [l, r)にxを加算
     void add(const int l, const int r, const T x) {
@@ -621,6 +660,1015 @@ public:
     }
 };
 
+// ===== Math / Number Theory =====
+
+// ===== bundled from library/math.hpp =====
+template <class T>
+[[nodiscard]] T fast_pow(T a, ull n) {
+    T res = T(1);
+    while (n > 0) {
+        if (n & 1) res *= a;
+        a *= a;
+        n >>= 1;
+    }
+    return res;
+}
+
+[[nodiscard]] inline ll mod_pow(ll a, ull n, const ll mod) {
+    if (mod == 1) return 0;
+    a %= mod;
+    if (a < 0) a += mod;
+    ll res = 1 % mod;
+    while (n > 0) {
+        if (n & 1) res = static_cast<ll>(static_cast<__int128>(res) * a % mod);
+        a = static_cast<ll>(static_cast<__int128>(a) * a % mod);
+        n >>= 1;
+    }
+    return res;
+}
+
+// ===== bundled from library/modint.hpp =====
+template <int MOD>
+struct static_modint {
+    using mint = static_modint;
+    int v = 0;
+
+    [[nodiscard]] static constexpr int mod() { return MOD; }
+
+    static_modint() = default;
+
+    template <class T>
+    static_modint(T x) {
+        ll y = static_cast<ll>(x % static_cast<T>(MOD));
+        if (y < 0) y += MOD;
+        v = static_cast<int>(y);
+    }
+
+    [[nodiscard]] int val() const { return v; }
+
+    mint& operator+=(const mint& rhs) {
+        v += rhs.v;
+        if (v >= MOD) v -= MOD;
+        return *this;
+    }
+
+    mint& operator-=(const mint& rhs) {
+        v -= rhs.v;
+        if (v < 0) v += MOD;
+        return *this;
+    }
+
+    mint& operator*=(const mint& rhs) {
+        v = static_cast<int>(static_cast<ll>(v) * rhs.v % MOD);
+        return *this;
+    }
+
+    mint& operator/=(const mint& rhs) { return *this *= rhs.inv(); }
+
+    [[nodiscard]] mint operator+() const { return *this; }
+    [[nodiscard]] mint operator-() const { return mint(0) - *this; }
+
+    [[nodiscard]] friend mint operator+(mint lhs, const mint& rhs) { return lhs += rhs; }
+    [[nodiscard]] friend mint operator-(mint lhs, const mint& rhs) { return lhs -= rhs; }
+    [[nodiscard]] friend mint operator*(mint lhs, const mint& rhs) { return lhs *= rhs; }
+    [[nodiscard]] friend mint operator/(mint lhs, const mint& rhs) { return lhs /= rhs; }
+    [[nodiscard]] friend bool operator==(const mint& lhs, const mint& rhs) { return lhs.v == rhs.v; }
+    [[nodiscard]] friend bool operator!=(const mint& lhs, const mint& rhs) { return !(lhs == rhs); }
+
+    [[nodiscard]] mint pow(ll n) const {
+        mint res = 1, x = *this;
+        while (n > 0) {
+            if (n & 1) res *= x;
+            x *= x;
+            n >>= 1;
+        }
+        return res;
+    }
+
+    [[nodiscard]] mint inv() const {
+        ll a = v, b = MOD, x = 1, y = 0;
+        while (b) {
+            const ll q = a / b;
+            a -= q * b;
+            swap(a, b);
+            x -= q * y;
+            swap(x, y);
+        }
+        if (x < 0) x += MOD;
+        return mint(x);
+    }
+
+    friend ostream& operator<<(ostream& os, const mint& x) { return os << x.v; }
+
+    friend istream& operator>>(istream& is, mint& x) {
+        ll input_value;
+        is >> input_value;
+        x = mint(input_value);
+        return is;
+    }
+};
+
+template <int ID>
+struct dynamic_modint {
+    using mint = dynamic_modint;
+
+    static int& mod_ref() {
+        static int m = 998244353;
+        return m;
+    }
+
+    int v = 0;
+
+    [[nodiscard]] static int mod() { return mod_ref(); }
+    static void set_mod(const int m) { mod_ref() = m; }
+
+    dynamic_modint() = default;
+
+    template <class T>
+    dynamic_modint(T x) {
+        const int m = mod();
+        ll y = static_cast<ll>(x % static_cast<T>(m));
+        if (y < 0) y += m;
+        v = static_cast<int>(y);
+    }
+
+    [[nodiscard]] int val() const { return v; }
+
+    mint& operator+=(const mint& rhs) {
+        v += rhs.v;
+        if (v >= mod()) v -= mod();
+        return *this;
+    }
+
+    mint& operator-=(const mint& rhs) {
+        v -= rhs.v;
+        if (v < 0) v += mod();
+        return *this;
+    }
+
+    mint& operator*=(const mint& rhs) {
+        v = static_cast<int>(static_cast<ll>(v) * rhs.v % mod());
+        return *this;
+    }
+
+    mint& operator/=(const mint& rhs) { return *this *= rhs.inv(); }
+
+    [[nodiscard]] mint operator+() const { return *this; }
+    [[nodiscard]] mint operator-() const { return mint(0) - *this; }
+
+    [[nodiscard]] friend mint operator+(mint lhs, const mint& rhs) { return lhs += rhs; }
+    [[nodiscard]] friend mint operator-(mint lhs, const mint& rhs) { return lhs -= rhs; }
+    [[nodiscard]] friend mint operator*(mint lhs, const mint& rhs) { return lhs *= rhs; }
+    [[nodiscard]] friend mint operator/(mint lhs, const mint& rhs) { return lhs /= rhs; }
+    [[nodiscard]] friend bool operator==(const mint& lhs, const mint& rhs) { return lhs.v == rhs.v; }
+    [[nodiscard]] friend bool operator!=(const mint& lhs, const mint& rhs) { return !(lhs == rhs); }
+
+    [[nodiscard]] mint pow(ll n) const {
+        mint res = 1, x = *this;
+        while (n > 0) {
+            if (n & 1) res *= x;
+            x *= x;
+            n >>= 1;
+        }
+        return res;
+    }
+
+    [[nodiscard]] mint inv() const {
+        ll a = v, b = mod(), x = 1, y = 0;
+        while (b) {
+            const ll q = a / b;
+            a -= q * b;
+            swap(a, b);
+            x -= q * y;
+            swap(x, y);
+        }
+        if (x < 0) x += mod();
+        return mint(x);
+    }
+
+    friend ostream& operator<<(ostream& os, const mint& x) { return os << x.v; }
+
+    friend istream& operator>>(istream& is, mint& x) {
+        ll input_value;
+        is >> input_value;
+        x = mint(input_value);
+        return is;
+    }
+};
+
+using modint998244353 = static_modint<998244353>;
+using modint1000000007 = static_modint<1000000007>;
+
+// ===== bundled from library/number_theory.hpp =====
+[[nodiscard]] inline ll ext_gcd(ll a, ll b, ll& x, ll& y) {
+    if (b == 0) {
+        x = (a >= 0 ? 1 : -1);
+        y = 0;
+        return abs(a);
+    }
+    ll x1, y1;
+    const ll g = ext_gcd(b, a % b, x1, y1);
+    x = y1;
+    y = x1 - (a / b) * y1;
+    return g;
+}
+
+[[nodiscard]] inline ll mod_inv(ll a, const ll mod) {
+    ll x, y;
+    const ll g = ext_gcd(a, mod, x, y);
+    if (g != 1) return -1;
+    x %= mod;
+    if (x < 0) x += mod;
+    return x;
+}
+
+[[nodiscard]] inline V<ll> divisors(ll n) {
+    V<ll> res;
+    for (ll d = 1; d * d <= n; d++) {
+        if (n % d != 0) continue;
+        res.push_back(d);
+        if (d * d != n) res.push_back(n / d);
+    }
+    sort(all(res));
+    return res;
+}
+
+[[nodiscard]] inline V<pair<ll, int>> factorize(ll n) {
+    V<pair<ll, int>> res;
+    for (ll p = 2; p * p <= n; p += (p == 2 ? 1 : 2)) {
+        if (n % p != 0) continue;
+        int e = 0;
+        while (n % p == 0) {
+            n /= p;
+            e++;
+        }
+        res.emplace_back(p, e);
+    }
+    if (n > 1) res.emplace_back(n, 1);
+    return res;
+}
+
+[[nodiscard]] inline ll euler_phi(ll n) {
+    ll res = n;
+    for (const auto& [p, _] : factorize(n)) {
+        res = res / p * (p - 1);
+    }
+    return res;
+}
+
+[[nodiscard]] inline V<int> sieve_primes(const int n) {
+    V<int> primes;
+    V<int> is_prime(n + 1, 1);
+    if (n >= 0) is_prime[0] = 0;
+    if (n >= 1) is_prime[1] = 0;
+    for (int i = 2; i <= n; i++) {
+        if (!is_prime[i]) continue;
+        primes.push_back(i);
+        if (static_cast<ll>(i) * i <= n) {
+            for (ll j = static_cast<ll>(i) * i; j <= n; j += i) is_prime[j] = 0;
+        }
+    }
+    return primes;
+}
+
+// ===== bundled from library/crt.hpp =====
+[[nodiscard]] inline pair<ll, ll> crt_pair(ll r1, ll m1, ll r2, ll m2) {
+    if (m1 < 0) m1 = -m1;
+    if (m2 < 0) m2 = -m2;
+    r1 %= m1;
+    if (r1 < 0) r1 += m1;
+    r2 %= m2;
+    if (r2 < 0) r2 += m2;
+
+    ll x, y;
+    const ll g = ext_gcd(m1, m2, x, y);
+    if ((r2 - r1) % g != 0) return {0, 0};
+
+    const ll u = m2 / g;
+    ll t = static_cast<ll>(static_cast<__int128>((r2 - r1) / g) * x % u);
+    if (t < 0) t += u;
+
+    const ll lcm = m1 * u;
+    ll r = static_cast<ll>((r1 + static_cast<__int128>(m1) * t) % lcm);
+    if (r < 0) r += lcm;
+    return {r, lcm};
+}
+
+[[nodiscard]] inline pair<ll, ll> crt(const V<ll>& r, const V<ll>& m) {
+    ll r0 = 0, m0 = 1;
+    rep(i, r.size()) {
+        auto merged = crt_pair(r0, m0, r[i], m[i]);
+        if (merged.second == 0) return {0, 0};
+        r0 = merged.first;
+        m0 = merged.second;
+    }
+    return {r0, m0};
+}
+
+// ===== bundled from library/floor_sum.hpp =====
+[[nodiscard]] inline ll floor_sum(ll n, ll m, ll a, ll b) {
+    ll ans = 0;
+    while (true) {
+        if (a >= m) {
+            ans += (n - 1) * n * (a / m) / 2;
+            a %= m;
+        }
+        if (b >= m) {
+            ans += n * (b / m);
+            b %= m;
+        }
+
+        const ll y_max = a * n + b;
+        if (y_max < m) break;
+        n = y_max / m;
+        b = y_max % m;
+        swap(m, a);
+    }
+    return ans;
+}
+
+// ===== bundled from library/mobius.hpp =====
+[[nodiscard]] inline V<int> mobius_table(const int n) {
+    V<int> mu(n + 1), primes;
+    V<int> is_comp(n + 1, 0);
+    mu[0] = 0;
+    if (n >= 1) mu[1] = 1;
+
+    for (int i = 2; i <= n; i++) {
+        if (!is_comp[i]) {
+            primes.push_back(i);
+            mu[i] = -1;
+        }
+
+        for (const int p : primes) {
+            if (static_cast<ll>(i) * p > n) break;
+            is_comp[i * p] = 1;
+            if (i % p == 0) {
+                mu[i * p] = 0;
+                break;
+            }
+            mu[i * p] = -mu[i];
+        }
+    }
+
+    return mu;
+}
+
+// ===== bundled from library/prime_test.hpp =====
+[[nodiscard]] inline ull mod_mul64(const ull a, const ull b, const ull mod) {
+    return static_cast<ull>(static_cast<__uint128_t>(a) * b % mod);
+}
+
+[[nodiscard]] inline ull mod_pow64(ull a, ull n, const ull mod) {
+    ull res = 1 % mod;
+    while (n > 0) {
+        if (n & 1) res = mod_mul64(res, a, mod);
+        a = mod_mul64(a, a, mod);
+        n >>= 1;
+    }
+    return res;
+}
+
+[[nodiscard]] inline bool is_prime64(const ull n) {
+    if (n < 2) return false;
+    for (const ull p : {2ULL, 3ULL, 5ULL, 7ULL, 11ULL, 13ULL, 17ULL, 19ULL, 23ULL, 29ULL, 31ULL, 37ULL}) {
+        if (n % p == 0) return n == p;
+    }
+
+    ull d = n - 1, s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    for (const ull a : {2ULL, 325ULL, 9375ULL, 28178ULL, 450775ULL, 9780504ULL, 1795265022ULL}) {
+        if (a % n == 0) continue;
+        ull x = mod_pow64(a % n, d, n);
+        if (x == 1 || x == n - 1) continue;
+
+        bool composite = true;
+        for (ull r = 1; r < s; r++) {
+            x = mod_mul64(x, x, n);
+            if (x == n - 1) {
+                composite = false;
+                break;
+            }
+        }
+        if (composite) return false;
+    }
+    return true;
+}
+
+// ===== bundled from library/pollard_rho.hpp =====
+[[nodiscard]] inline ull pollard_rho(ull n) {
+    if (n % 2 == 0) return 2;
+    static mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
+
+    while (true) {
+        const ull c = uniform_int_distribution<ull>(1, n - 1)(rng);
+        ull x = uniform_int_distribution<ull>(0, n - 1)(rng);
+        ull y = x;
+        ull d = 1;
+
+        const auto f = [&](ull v) {
+            return (mod_mul64(v, v, n) + c) % n;
+        };
+
+        while (d == 1) {
+            x = f(x);
+            y = f(f(y));
+            const ull diff = x > y ? x - y : y - x;
+            d = gcd(diff, n);
+        }
+
+        if (d != n) return d;
+    }
+}
+
+inline void factorize_pollard_dfs(ull n, V<ull>& res) {
+    if (n == 1) return;
+    if (is_prime64(n)) {
+        res.push_back(n);
+        return;
+    }
+    const ull d = pollard_rho(n);
+    factorize_pollard_dfs(d, res);
+    factorize_pollard_dfs(n / d, res);
+}
+
+[[nodiscard]] inline V<ull> factorize_pollard(ull n) {
+    V<ull> res;
+    factorize_pollard_dfs(n, res);
+    sort(all(res));
+    return res;
+}
+
+// ===== bundled from library/discrete_log.hpp =====
+[[nodiscard]] inline ll discrete_log(ll a, ll b, ll m) {
+    a %= m;
+    b %= m;
+    if (b < 0) b += m;
+    if (m == 1) return 0;
+
+    ll add = 0, k = 1;
+    for (ll g = gcd(a, m); g > 1; g = gcd(a, m)) {
+        if (b == k) return add;
+        if (b % g != 0) return -1;
+        b /= g;
+        m /= g;
+        k = static_cast<ll>(static_cast<__int128>(k) * (a / g) % m);
+        add++;
+    }
+
+    const ll n = static_cast<ll>(sqrt(static_cast<long double>(m)) + 1);
+    unordered_map<ll, ll> baby;
+    ll cur = b;
+    rep(q, n) {
+        if (!baby.count(cur)) baby[cur] = q;
+        cur = static_cast<ll>(static_cast<__int128>(cur) * a % m);
+    }
+
+    const ll an = mod_pow(a, n, m);
+    cur = k;
+    for (ll p = 1; p <= n + 1; p++) {
+        cur = static_cast<ll>(static_cast<__int128>(cur) * an % m);
+        if (baby.count(cur)) {
+            const ll ans = p * n - baby[cur] + add;
+            if (ans >= 0) return ans;
+        }
+    }
+    return -1;
+}
+
+// ===== bundled from library/primitive_root.hpp =====
+[[nodiscard]] inline int primitive_root(const int mod) {
+    if (mod == 2) return 1;
+    V<int> factors;
+    int x = mod - 1;
+    for (int p = 2; static_cast<ll>(p) * p <= x; p++) {
+        if (x % p != 0) continue;
+        factors.push_back(p);
+        while (x % p == 0) x /= p;
+    }
+    if (x > 1) factors.push_back(x);
+
+    for (int g = 2;; g++) {
+        bool ok = true;
+        for (const int p : factors) {
+            if (mod_pow(g, (mod - 1) / p, mod) == 1) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) return g;
+    }
+}
+
+// ===== bundled from library/garner.hpp =====
+[[nodiscard]] inline ll garner(const V<ll>& r, const V<ll>& m, const ll mod) {
+    const int n = static_cast<int>(r.size());
+    V<ll> coeff(n + 1, 1), constants(n + 1, 0), mods = m;
+    mods.push_back(mod);
+
+    rep(i, n) {
+        ll t = (r[i] - constants[i]) % mods[i];
+        if (t < 0) t += mods[i];
+        t = static_cast<ll>(static_cast<__int128>(t) * mod_inv(coeff[i], mods[i]) % mods[i]);
+
+        for (int j = i + 1; j <= n; j++) {
+            constants[j] = (constants[j] + static_cast<__int128>(coeff[j]) * t) % mods[j];
+            coeff[j] = static_cast<ll>(static_cast<__int128>(coeff[j]) * mods[i] % mods[j]);
+        }
+    }
+
+    return constants[n];
+}
+
+// ===== Linear Algebra / Polynomial =====
+
+// ===== bundled from library/matrix.hpp =====
+template <class T>
+using Matrix = V<V<T>>;
+
+template <class T>
+[[nodiscard]] Matrix<T> identity_matrix(const int n) {
+    Matrix<T> res(n, V<T>(n, T(0)));
+    rep(i, n) res[i][i] = T(1);
+    return res;
+}
+
+template <class T>
+[[nodiscard]] Matrix<T> matrix_mul(const Matrix<T>& a, const Matrix<T>& b) {
+    const int n = static_cast<int>(a.size());
+    const int m = static_cast<int>(b[0].size());
+    const int p = static_cast<int>(b.size());
+    Matrix<T> res(n, V<T>(m, T(0)));
+
+    rep(i, n) {
+        rep(k, p) {
+            if (a[i][k] == T(0)) continue;
+            rep(j, m) {
+                res[i][j] += a[i][k] * b[k][j];
+            }
+        }
+    }
+
+    return res;
+}
+
+template <class T>
+[[nodiscard]] Matrix<T> matrix_pow(Matrix<T> a, ull e) {
+    Matrix<T> res = identity_matrix<T>(static_cast<int>(a.size()));
+    while (e > 0) {
+        if (e & 1) res = matrix_mul(res, a);
+        a = matrix_mul(a, a);
+        e >>= 1;
+    }
+    return res;
+}
+
+// ===== bundled from library/linear_algebra.hpp =====
+template <class T>
+[[nodiscard]] int gaussian_elimination(V<V<T>>& a, const int variables = -1) {
+    const int h = static_cast<int>(a.size());
+    if (h == 0) return 0;
+    const int w = static_cast<int>(a[0].size());
+    const int vars = variables == -1 ? w : variables;
+
+    int rank = 0;
+    rep(col, vars) {
+        int pivot = -1;
+        for (int row = rank; row < h; row++) {
+            if (a[row][col] != T(0)) {
+                pivot = row;
+                break;
+            }
+        }
+        if (pivot == -1) continue;
+
+        swap(a[rank], a[pivot]);
+        const T inv = T(1) / a[rank][col];
+        for (int col2 = col; col2 < w; col2++) a[rank][col2] *= inv;
+
+        rep(row, h) {
+            if (row == rank || a[row][col] == T(0)) continue;
+            const T factor = a[row][col];
+            for (int col2 = col; col2 < w; col2++) {
+                a[row][col2] -= factor * a[rank][col2];
+            }
+        }
+
+        rank++;
+    }
+
+    return rank;
+}
+
+template <class T>
+[[nodiscard]] int matrix_rank(Matrix<T> a) {
+    return gaussian_elimination(a);
+}
+
+template <class T>
+[[nodiscard]] pair<bool, V<T>> solve_linear_system(Matrix<T> a, V<T> b) {
+    const int n = static_cast<int>(a.size());
+    const int m = n == 0 ? 0 : static_cast<int>(a[0].size());
+    rep(i, n) a[i].push_back(b[i]);
+
+    const int rank = gaussian_elimination(a, m);
+    for (int row = rank; row < n; row++) {
+        if (a[row][m] != T(0)) return {false, {}};
+    }
+
+    V<T> x(m, T(0));
+    rep(row, rank) {
+        int pivot = -1;
+        rep(col, m) {
+            if (a[row][col] == T(1)) {
+                pivot = col;
+                break;
+            }
+        }
+        if (pivot != -1) x[pivot] = a[row][m];
+    }
+
+    return {true, x};
+}
+
+// ===== bundled from library/xor_basis.hpp =====
+struct XorBasis {
+    static constexpr int LOG = 63;
+    array<ull, LOG + 1> basis{};
+    int rank_value = 0;
+
+    [[nodiscard]] bool insert(ull x) {
+        for (int b = LOG; b >= 0; b--) {
+            if (((x >> b) & 1) == 0) continue;
+            if (!basis[b]) {
+                basis[b] = x;
+                rank_value++;
+                return true;
+            }
+            x ^= basis[b];
+        }
+        return false;
+    }
+
+    [[nodiscard]] bool can_make(ull x) const {
+        for (int b = LOG; b >= 0; b--) {
+            if (((x >> b) & 1) == 0) continue;
+            if (!basis[b]) return false;
+            x ^= basis[b];
+        }
+        return true;
+    }
+
+    [[nodiscard]] ull max_xor(ull x = 0) const {
+        for (int b = LOG; b >= 0; b--) {
+            if ((x ^ basis[b]) > x) x ^= basis[b];
+        }
+        return x;
+    }
+
+    [[nodiscard]] int rank() const {
+        return rank_value;
+    }
+};
+
+// ===== bundled from library/convolution.hpp =====
+template <class Mint>
+void ntt(V<Mint>& a, const bool invert) {
+    const int n = static_cast<int>(a.size());
+    static V<int> rev;
+    static V<Mint> roots{0, 1};
+
+    if (static_cast<int>(rev.size()) != n) {
+        const int k = __builtin_ctz(n);
+        rev.assign(n, 0);
+        rep(i, n) {
+            rev[i] = (rev[i >> 1] >> 1) | ((i & 1) << (k - 1));
+        }
+    }
+
+    if (static_cast<int>(roots.size()) < n) {
+        int k = __builtin_ctz(static_cast<int>(roots.size()));
+        roots.resize(n);
+        while ((1 << k) < n) {
+            Mint e = Mint(primitive_root(Mint::mod())).pow((Mint::mod() - 1) >> (k + 1));
+            for (int i = 1 << (k - 1); i < (1 << k); i++) {
+                roots[2 * i] = roots[i];
+                roots[2 * i + 1] = roots[i] * e;
+            }
+            k++;
+        }
+    }
+
+    rep(i, n) {
+        if (i < rev[i]) swap(a[i], a[rev[i]]);
+    }
+
+    for (int len = 1; len < n; len <<= 1) {
+        for (int i = 0; i < n; i += 2 * len) {
+            rep(j, len) {
+                Mint u = a[i + j];
+                Mint v = a[i + j + len] * roots[len + j];
+                a[i + j] = u + v;
+                a[i + j + len] = u - v;
+            }
+        }
+    }
+
+    if (invert) {
+        reverse(a.begin() + 1, a.end());
+        const Mint inv_n = Mint(n).inv();
+        for (auto& x : a) x *= inv_n;
+    }
+}
+
+template <class Mint>
+[[nodiscard]] V<Mint> convolution_ntt(V<Mint> a, V<Mint> b) {
+    if (a.empty() || b.empty()) return {};
+    const int need = static_cast<int>(a.size() + b.size() - 1);
+    int n = 1;
+    while (n < need) n <<= 1;
+    a.resize(n);
+    b.resize(n);
+    ntt(a, false);
+    ntt(b, false);
+    rep(i, n) a[i] *= b[i];
+    ntt(a, true);
+    a.resize(need);
+    return a;
+}
+
+[[nodiscard]] inline V<ll> convolution_fft(const V<ll>& a, const V<ll>& b) {
+    if (a.empty() || b.empty()) return {};
+    using cd = complex<double>;
+    const double PI_D = acos(-1.0);
+    const int need = static_cast<int>(a.size() + b.size() - 1);
+    int n = 1;
+    while (n < need) n <<= 1;
+
+    V<cd> fa(n), fb(n);
+    rep(i, a.size()) fa[i] = static_cast<double>(a[i]);
+    rep(i, b.size()) fb[i] = static_cast<double>(b[i]);
+
+    const auto fft = [&](V<cd>& f, const bool invert) {
+        for (int i = 1, j = 0; i < n; i++) {
+            int bit = n >> 1;
+            for (; j & bit; bit >>= 1) j ^= bit;
+            j ^= bit;
+            if (i < j) swap(f[i], f[j]);
+        }
+        for (int len = 2; len <= n; len <<= 1) {
+            const double ang = 2 * PI_D / len * (invert ? -1 : 1);
+            const cd wlen(cos(ang), sin(ang));
+            for (int i = 0; i < n; i += len) {
+                cd w = 1;
+                for (int j = 0; j < len / 2; j++) {
+                    cd u = f[i + j], v = f[i + j + len / 2] * w;
+                    f[i + j] = u + v;
+                    f[i + j + len / 2] = u - v;
+                    w *= wlen;
+                }
+            }
+        }
+        if (invert) {
+            for (auto& x : f) x /= n;
+        }
+    };
+
+    fft(fa, false);
+    fft(fb, false);
+    rep(i, n) fa[i] *= fb[i];
+    fft(fa, true);
+
+    V<ll> res(need);
+    rep(i, need) res[i] = llround(fa[i].real());
+    return res;
+}
+
+// ===== bundled from library/fps.hpp =====
+template <class Mint>
+struct FormalPowerSeries : V<Mint> {
+    using V<Mint>::V;
+    using FPS = FormalPowerSeries;
+
+    [[nodiscard]] FPS pre(const int n) const {
+        return FPS(this->begin(), this->begin() + min(n, static_cast<int>(this->size())));
+    }
+
+    FPS& normalize() {
+        while (!this->empty() && this->back() == Mint(0)) this->pop_back();
+        return *this;
+    }
+
+    [[nodiscard]] FPS diff() const {
+        const int n = static_cast<int>(this->size());
+        if (n == 0) return {};
+        FPS res(max(0, n - 1));
+        for (int i = 1; i < n; i++) res[i - 1] = (*this)[i] * i;
+        return res;
+    }
+
+    [[nodiscard]] FPS integral() const {
+        const int n = static_cast<int>(this->size());
+        FPS res(n + 1);
+        rep(i, n) res[i + 1] = (*this)[i] / Mint(i + 1);
+        return res;
+    }
+
+    [[nodiscard]] FPS inv(const int deg) const {
+        FPS res{(*this)[0].inv()};
+        int n = 1;
+        while (n < deg) {
+            n <<= 1;
+            FPS f = pre(n);
+            FPS g = res;
+            f.resize(n);
+            g.resize(n);
+            auto fg = convolution_ntt(f, g);
+            fg.resize(n);
+            rep(i, n) fg[i] = -fg[i];
+            fg[0] += 2;
+            auto next = convolution_ntt(g, fg);
+            res = FPS(next.begin(), next.end());
+            res.resize(n);
+        }
+        res.resize(deg);
+        return res;
+    }
+
+    [[nodiscard]] friend FPS operator+(FPS a, const FPS& b) {
+        if (a.size() < b.size()) a.resize(b.size());
+        rep(i, b.size()) a[i] += b[i];
+        return a;
+    }
+
+    [[nodiscard]] friend FPS operator-(FPS a, const FPS& b) {
+        if (a.size() < b.size()) a.resize(b.size());
+        rep(i, b.size()) a[i] -= b[i];
+        return a;
+    }
+
+    [[nodiscard]] friend FPS operator*(const FPS& a, const FPS& b) {
+        auto c = convolution_ntt(V<Mint>(a.begin(), a.end()), V<Mint>(b.begin(), b.end()));
+        return FPS(c.begin(), c.end());
+    }
+};
+
+// ===== bundled from library/linear_recurrence.hpp =====
+template <class T>
+[[nodiscard]] V<T> kitamasa_combine(const V<T>& a, const V<T>& b, const V<T>& coef) {
+    const int d = static_cast<int>(coef.size());
+    V<T> tmp(2 * d - 1, T(0));
+    rep(i, d)
+        rep(j, d) tmp[i + j] += a[i] * b[j];
+    for (int i = 2 * d - 2; i >= d; i--) {
+        rep(j, d) tmp[i - d + j] += tmp[i] * coef[j];
+    }
+    tmp.resize(d);
+    return tmp;
+}
+
+template <class T>
+[[nodiscard]] T linear_recurrence_nth(const V<T>& init, const V<T>& coef, ull n) {
+    const int d = static_cast<int>(coef.size());
+    if (n < init.size()) return init[n];
+
+    V<T> pol(d, T(0)), e(d, T(0));
+    pol[0] = T(1);
+    if (d == 1) e[0] = coef[0];
+    else e[1] = T(1);
+
+    while (n > 0) {
+        if (n & 1) pol = kitamasa_combine(pol, e, coef);
+        e = kitamasa_combine(e, e, coef);
+        n >>= 1;
+    }
+
+    T res = T(0);
+    rep(i, d) res += pol[i] * init[i];
+    return res;
+}
+
+// ===== bundled from library/berlekamp_massey.hpp =====
+template <class Mint>
+[[nodiscard]] V<Mint> berlekamp_massey(const V<Mint>& s) {
+    V<Mint> c{1}, b{1};
+    int l = 0, m = 1;
+    Mint bb = 1;
+
+    rep(n, s.size()) {
+        Mint d = s[n];
+        for (int i = 1; i <= l; i++) d += c[i] * s[n - i];
+        if (d == Mint(0)) {
+            m++;
+            continue;
+        }
+
+        V<Mint> t = c;
+        const Mint coef = d / bb;
+        if (static_cast<int>(c.size()) < static_cast<int>(b.size()) + m) {
+            c.resize(b.size() + m, Mint(0));
+        }
+        rep(i, b.size()) c[i + m] -= coef * b[i];
+
+        if (2 * l <= n) {
+            l = n + 1 - l;
+            b = t;
+            bb = d;
+            m = 1;
+        }
+        else {
+            m++;
+        }
+    }
+
+    c.erase(c.begin());
+    for (auto& x : c) x = -x;
+    return c;
+}
+
+// ===== bundled from library/subset_transform.hpp =====
+template <class T>
+void subset_zeta(V<T>& f) {
+    const int n = static_cast<int>(f.size());
+    for (int bit = 1; bit < n; bit <<= 1) {
+        rep(mask, n) if (mask & bit) f[mask] += f[mask ^ bit];
+    }
+}
+
+template <class T>
+void subset_mobius(V<T>& f) {
+    const int n = static_cast<int>(f.size());
+    for (int bit = 1; bit < n; bit <<= 1) {
+        rep(mask, n) if (mask & bit) f[mask] -= f[mask ^ bit];
+    }
+}
+
+template <class T>
+void superset_zeta(V<T>& f) {
+    const int n = static_cast<int>(f.size());
+    for (int bit = 1; bit < n; bit <<= 1) {
+        rep(mask, n) if ((mask & bit) == 0) f[mask] += f[mask ^ bit];
+    }
+}
+
+template <class T>
+void superset_mobius(V<T>& f) {
+    const int n = static_cast<int>(f.size());
+    for (int bit = 1; bit < n; bit <<= 1) {
+        rep(mask, n) if ((mask & bit) == 0) f[mask] -= f[mask ^ bit];
+    }
+}
+
+// ===== bundled from library/fwht.hpp =====
+template <class T>
+void fwht_xor(V<T>& f, const bool inverse = false) {
+    const int n = static_cast<int>(f.size());
+    for (int len = 1; len < n; len <<= 1) {
+        for (int i = 0; i < n; i += 2 * len) {
+            rep(j, len) {
+                T x = f[i + j], y = f[i + j + len];
+                f[i + j] = x + y;
+                f[i + j + len] = x - y;
+            }
+        }
+    }
+    if (inverse) {
+        const T inv_n = T(1) / T(n);
+        for (auto& x : f) x *= inv_n;
+    }
+}
+
+template <class T>
+[[nodiscard]] V<T> convolution_xor(V<T> a, V<T> b) {
+    fwht_xor(a, false);
+    fwht_xor(b, false);
+    rep(i, a.size()) a[i] *= b[i];
+    fwht_xor(a, true);
+    return a;
+}
+
+template <class T>
+[[nodiscard]] V<T> convolution_or(V<T> a, V<T> b) {
+    subset_zeta(a);
+    subset_zeta(b);
+    rep(i, a.size()) a[i] *= b[i];
+    subset_mobius(a);
+    return a;
+}
+
+template <class T>
+[[nodiscard]] V<T> convolution_and(V<T> a, V<T> b) {
+    superset_zeta(a);
+    superset_zeta(b);
+    rep(i, a.size()) a[i] *= b[i];
+    superset_mobius(a);
+    return a;
+}
+
 // ===== Index / Search =====
 
 // ===== bundled from library/compress.hpp =====
@@ -630,16 +1678,16 @@ struct Compress {
 
     Compress() = default;
 
-    explicit Compress(const V<T> &v) {
+    explicit Compress(const V<T>& v) {
         xs = v;
         build();
     }
 
-    void add(const T &x) {
+    void add(const T& x) {
         xs.push_back(x);
     }
 
-    void add(const V<T> &vec) {
+    void add(const V<T>& vec) {
         xs.insert(xs.end(), all(vec));
     }
 
@@ -672,33 +1720,33 @@ struct BinarySearch {
 
     BinarySearch() = default;
 
-    explicit BinarySearch(const V<T> &sorted_vec) {
+    explicit BinarySearch(const V<T>& sorted_vec) {
         build(sorted_vec);
     }
 
-    void build(const V<T> &sorted_vec) {
+    void build(const V<T>& sorted_vec) {
         a = sorted_vec;
     }
 
-    int index(const T &x) const {
+    int index(const T& x) const {
         const int pos = lower_bound(all(a), x) - a.begin();
         if (pos < static_cast<int>(a.size()) && a[pos] == x) return pos;
         return -1;
     }
 
-    int first_ge(const T &x) const {
+    int first_ge(const T& x) const {
         return lower_bound(all(a), x) - a.begin();
     }
 
-    int first_gt(const T &x) const {
+    int first_gt(const T& x) const {
         return upper_bound(all(a), x) - a.begin();
     }
 
-    int last_lt(const T &x) const {
+    int last_lt(const T& x) const {
         return first_ge(x) - 1;
     }
 
-    int last_le(const T &x) const {
+    int last_le(const T& x) const {
         return first_gt(x) - 1;
     }
 
@@ -735,7 +1783,7 @@ struct DSU {
         group_count = n;
     }
 
-    int leader(const int x){
+    int leader(const int x) {
         if (parent_or_size[x] < 0) return x;
         return parent_or_size[x] = leader(parent_or_size[x]);
     }
@@ -782,8 +1830,12 @@ struct DSU {
 struct Edge {
     int to;
     ll w;
-    Edge() : to(0), w(1) {}
-    Edge(int _to, ll _w = 1) : to(_to), w(_w) {}
+
+    Edge() : to(0), w(1) {
+    }
+
+    Edge(int _to, ll _w = 1) : to(_to), w(_w) {
+    }
 };
 
 struct Graph {
@@ -794,11 +1846,13 @@ struct Graph {
 
     Graph() = default;
 
-    explicit Graph(const int n, const bool _undirected = true, const bool _weighted = false, const bool _one_indexed = true)
+    explicit Graph(const int n, const bool _undirected = true, const bool _weighted = false,
+                   const bool _one_indexed = true)
         : graph(n),
           undirected(_undirected),
           weighted(_weighted),
-          one_indexed(_one_indexed) {}
+          one_indexed(_one_indexed) {
+    }
 
     [[nodiscard]] int size() const {
         return static_cast<int>(graph.size());
@@ -841,7 +1895,8 @@ inline Graph read_graph(
 
         if (weighted) {
             cin >> a >> b >> w;
-        } else {
+        }
+        else {
             cin >> a >> b;
         }
 
@@ -858,30 +1913,30 @@ inline Graph read_graph(
 // ============== グラフアルゴリズム ==============
 // ============== DFS ==============
 struct GraphDFS {
-    const Graph *graph_ref = nullptr;
+    const Graph* graph_ref = nullptr;
     V<int> used, parent, tin, tout, comp_id, order, post_order;
     int comp_cnt = 0;
     int timer = 0;
 
     GraphDFS() = default;
 
-    explicit GraphDFS(const Graph &graph) {
+    explicit GraphDFS(const Graph& graph) {
         build_all(graph);
     }
 
-    GraphDFS(const Graph &graph, const int s) {
+    GraphDFS(const Graph& graph, const int s) {
         build(graph, s);
     }
 
-    void build(const Graph &graph, int s) {
+    void build(const Graph& graph, int s) {
         s = graph.to_internal(s);
         init(graph);
         run_dfs(V<int>{s});
     }
 
-    void build_multi(const Graph &graph, const V<int> &starts) {
+    void build_multi(const Graph& graph, const V<int>& starts) {
         V<int> internal_starts = starts;
-        for (auto &s : internal_starts) {
+        for (auto& s : internal_starts) {
             s = graph.to_internal(s);
         }
 
@@ -889,7 +1944,7 @@ struct GraphDFS {
         run_dfs(internal_starts);
     }
 
-    void build_all(const Graph &graph) {
+    void build_all(const Graph& graph) {
         const int n = graph.size();
         V<int> starts(n);
         iota(all(starts), 0);
@@ -898,10 +1953,10 @@ struct GraphDFS {
         run_dfs(starts);
     }
 
-    void build_all(const Graph &graph, const V<int> &starts) {
+    void build_all(const Graph& graph, const V<int>& starts) {
         const int n = graph.size();
         V<int> internal_starts = starts;
-        for (auto &s : internal_starts) {
+        for (auto& s : internal_starts) {
             s = graph.to_internal(s);
         }
         rep(v, n) {
@@ -912,8 +1967,8 @@ struct GraphDFS {
         run_dfs(internal_starts);
     }
 
-  private:
-    void init(const Graph &graph) {
+private:
+    void init(const Graph& graph) {
         graph_ref = &graph;
         const int n = graph.size();
 
@@ -930,8 +1985,8 @@ struct GraphDFS {
         timer = 0;
     }
 
-    void run_dfs(const V<int> &starts) {
-        const auto &g = graph_ref->graph;
+    void run_dfs(const V<int>& starts) {
+        const auto& g = graph_ref->graph;
 
         const auto dfs = yc([&](auto self, int v, const int p) -> void {
             used[v] = 1;
@@ -940,7 +1995,7 @@ struct GraphDFS {
             comp_id[v] = comp_cnt;
             order.push_back(v);
 
-            for (const auto &e : g[v]) {
+            for (const auto& e : g[v]) {
                 const int to = e.to;
                 if (used[to]) continue;
                 self(to, v);
@@ -960,19 +2015,19 @@ struct GraphDFS {
 
 // ============== BFS ==============
 struct GraphBFS {
-    const Graph *graph_ref = nullptr;
+    const Graph* graph_ref = nullptr;
     V<int> dist, parent;
     V<int> order, source;
 
     GraphBFS() = default;
 
-    GraphBFS(const Graph &graph, const int s) {
+    GraphBFS(const Graph& graph, const int s) {
         build(graph, s);
     }
 
-    void build(const Graph &graph, int s) {
+    void build(const Graph& graph, int s) {
         graph_ref = &graph;
-        const auto &g = graph.graph;
+        const auto& g = graph.graph;
         const int n = graph.size();
 
         s = graph.to_internal(s);
@@ -992,9 +2047,9 @@ struct GraphBFS {
         run_bfs(q, g);
     }
 
-    void build_multi(const Graph &graph, const V<int> &starts) {
+    void build_multi(const Graph& graph, const V<int>& starts) {
         graph_ref = &graph;
-        const auto &g = graph.graph;
+        const auto& g = graph.graph;
         const int n = graph.size();
 
         dist.assign(n, -1);
@@ -1019,7 +2074,7 @@ struct GraphBFS {
     }
 
     [[nodiscard]] V<int> path(int t) const {
-        const Graph &graph = *graph_ref;
+        const Graph& graph = *graph_ref;
         t = graph.to_internal(t);
 
         if (source[t] == -1) return {};
@@ -1035,21 +2090,21 @@ struct GraphBFS {
         if (res.back() != s) return {};
 
         reverse(all(res));
-        for (auto &v : res) {
+        for (auto& v : res) {
             v = graph.to_external(v);
         }
         return res;
     }
 
 private:
-    void run_bfs(queue<int> &q, const V<V<Edge>> &g) {
+    void run_bfs(queue<int>& q, const V<V<Edge>>& g) {
         while (!q.empty()) {
             const int v = q.front();
             q.pop();
 
             order.push_back(v);
 
-            for (const auto &e : g[v]) {
+            for (const auto& e : g[v]) {
                 const int to = e.to;
                 if (dist[to] != -1) continue;
 
@@ -1065,20 +2120,20 @@ private:
 
 // ============== 連結成分 ==============
 struct ConnectedComponents {
-    const Graph *graph_ref = nullptr;
+    const Graph* graph_ref = nullptr;
     V<int> comp_id;
     V<int> comp_size;
     int comp_cnt = 0;
 
     ConnectedComponents() = default;
 
-    explicit ConnectedComponents(const Graph &graph) {
+    explicit ConnectedComponents(const Graph& graph) {
         build(graph);
     }
 
-    void build(const Graph &graph) {
+    void build(const Graph& graph) {
         graph_ref = &graph;
-        const auto &g = graph.graph;
+        const auto& g = graph.graph;
         const int n = graph.size();
 
         comp_id.assign(n, -1);
@@ -1100,7 +2155,7 @@ struct ConnectedComponents {
 
                 sz++;
 
-                for (const auto &e : g[v]) {
+                for (const auto& e : g[v]) {
                     const int to = e.to;
 
                     if (comp_id[to] != -1) continue;
@@ -1116,14 +2171,14 @@ struct ConnectedComponents {
     }
 
     [[nodiscard]] bool same(int a, int b) const {
-        const Graph &graph = *graph_ref;
+        const Graph& graph = *graph_ref;
         a = graph.to_internal(a);
         b = graph.to_internal(b);
         return comp_id[a] == comp_id[b];
     }
 
     [[nodiscard]] int size(int v) const {
-        const Graph &graph = *graph_ref;
+        const Graph& graph = *graph_ref;
         v = graph.to_internal(v);
         return comp_size[comp_id[v]];
     }
@@ -1139,7 +2194,7 @@ struct ConnectedComponents {
 
 // ============== Dijkstra ==============
 struct Dijkstra {
-    const Graph *graph_ref = nullptr;
+    const Graph* graph_ref = nullptr;
     int source = -1;
     V<ll> dist;
     V<int> parent;
@@ -1147,13 +2202,13 @@ struct Dijkstra {
 
     Dijkstra() = default;
 
-    Dijkstra(const Graph &graph, const int s) {
+    Dijkstra(const Graph& graph, const int s) {
         build(graph, s);
     }
 
-    void build(const Graph &graph, int s) {
+    void build(const Graph& graph, int s) {
         graph_ref = &graph;
-        const auto &g = graph.graph;
+        const auto& g = graph.graph;
         const int n = graph.size();
 
         s = graph.to_internal(s);
@@ -1177,7 +2232,7 @@ struct Dijkstra {
 
             order.push_back(v);
 
-            for (const auto &e : g[v]) {
+            for (const auto& e : g[v]) {
                 const int to = e.to;
                 const ll nd = dist[v] + e.w;
 
@@ -1192,7 +2247,7 @@ struct Dijkstra {
     }
 
     [[nodiscard]] ll distance(int t) const {
-        const Graph &graph = *graph_ref;
+        const Graph& graph = *graph_ref;
         t = graph.to_internal(t);
         return dist[t];
     }
@@ -1202,7 +2257,7 @@ struct Dijkstra {
     }
 
     [[nodiscard]] V<int> path(int t) const {
-        const Graph &graph = *graph_ref;
+        const Graph& graph = *graph_ref;
         t = graph.to_internal(t);
 
         if (t == source) return V<int>{graph.to_external(source)};
@@ -1219,7 +2274,7 @@ struct Dijkstra {
 
         reverse(all(res));
 
-        for (auto &v : res) {
+        for (auto& v : res) {
             v = graph.to_external(v);
         }
 
@@ -1227,7 +2282,7 @@ struct Dijkstra {
     }
 };
 
-// ===== bundled from library/dag.h =====
+// ===== bundled from library/dag.hpp =====
 struct TopologicalSort {
     const Graph* graph_ref = nullptr;
     V<int> order;
@@ -1235,6 +2290,7 @@ struct TopologicalSort {
     bool is_dag = false;
 
     TopologicalSort() = default;
+
     explicit TopologicalSort(const Graph& g) {
         build(g);
     }
@@ -1308,13 +2364,14 @@ struct DirectedCycle {
         const auto dfs = yc([&](auto self, int v) -> bool {
             color[v] = 1;
 
-            for (const auto &e : g.graph[v]) {
+            for (const auto& e : g.graph[v]) {
                 const int to = e.to;
 
                 if (color[to] == 0) {
                     parent[to] = v;
                     if (self(to)) return true;
-                } else if (color[to] == 1) {
+                }
+                else if (color[to] == 1) {
                     cycle.push_back(to);
                     for (int x = v; x != to; x = parent[x]) {
                         cycle.push_back(x);
@@ -1338,11 +2395,12 @@ struct DirectedCycle {
     V<int> cycle_external() const {
         V<int> res = cycle;
         if (graph_ref && graph_ref->one_indexed) {
-            for (auto &v : res) v++;
+            for (auto& v : res) v++;
         }
         return res;
     }
 };
+
 struct SCC {
     const Graph* graph_ref = nullptr;
     int comp_cnt = 0;
@@ -1362,7 +2420,7 @@ struct SCC {
 
         Graph rg(n, false, g.weighted, false);
         rep(v, n) {
-            for (const auto &e : g.graph[v]) {
+            for (const auto& e : g.graph[v]) {
                 rg.add_edge_internal(e.to, v, e.w);
             }
         }
@@ -1464,13 +2522,13 @@ struct DAGLongestPath {
         }
         reverse(all(res));
 
-        for (auto &v : res) {
+        for (auto& v : res) {
             v = graph_ref->to_external(v);
         }
         return res;
     }
 
-  private:
+private:
     static T neg_inf() {
         return numeric_limits<T>::lowest() / T(4);
     }
@@ -1489,7 +2547,7 @@ struct DAGLongestPath {
         for (const int v : order) {
             if (dist[v] == neg_inf()) continue;
 
-            for (const auto &e : g.graph[v]) {
+            for (const auto& e : g.graph[v]) {
                 const int to = e.to;
                 const T nd = dist[v] + static_cast<T>(e.w);
 
@@ -1502,13 +2560,139 @@ struct DAGLongestPath {
     }
 };
 
+// ===== bundled from library/coloring.hpp =====
+struct KColoring {
+    const Graph* graph_ref = nullptr;
+    int k = 0;
+    V<int> color;
+    bool found = false;
+
+    KColoring() = default;
+
+    KColoring(const Graph& g, const int k_) {
+        build(g, k_);
+    }
+
+    bool build(const Graph& g, const int k_) {
+        graph_ref = &g;
+        k = k_;
+        color.assign(g.size(), -1);
+
+        found = solve_by_dsat(g);
+        return found;
+    }
+
+    int min_colors(const Graph& g) {
+        const int n = g.size();
+        rep(colors, n + 1) {
+            if (build(g, colors)) return colors;
+        }
+        return -1;
+    }
+
+    bool valid() const {
+        if (!graph_ref) return false;
+        if (static_cast<int>(color.size()) != graph_ref->size()) return false;
+
+        rep(v, graph_ref->size()) {
+            if (color[v] < 0 || color[v] >= k) return false;
+
+            for (const auto& e : graph_ref->graph[v]) {
+                if (color[v] == color[e.to]) return false;
+            }
+        }
+
+        return true;
+    }
+
+private:
+    V<V<int>> build_undirected_adjacency(const Graph& g) const {
+        const int n = g.size();
+        V<V<int>> adj(n);
+
+        rep(v, n) {
+            for (const auto& e : g.graph[v]) {
+                const int to = e.to;
+                adj[v].push_back(to);
+                if (v != to) adj[to].push_back(v);
+            }
+        }
+
+        rep(v, n) {
+            sort(all(adj[v]));
+            adj[v].erase(unique(all(adj[v])), adj[v].end());
+        }
+
+        return adj;
+    }
+
+    bool solve_by_dsat(const Graph& g) {
+        const int n = g.size();
+        if (n == 0) return k >= 0;
+        if (k <= 0) return false;
+
+        const V<V<int>> adj = build_undirected_adjacency(g);
+        rep(v, n) {
+            if (binary_search(all(adj[v]), v)) return false;
+        }
+
+        const auto dfs = yc([&](auto self, const int colored_count) -> bool {
+            if (colored_count == n) return true;
+
+            int best = -1;
+            int best_saturation = -1;
+            int best_degree = -1;
+
+            rep(v, n) {
+                if (color[v] != -1) continue;
+
+                V<int> seen(k, 0);
+                int saturation = 0;
+
+                for (const int to : adj[v]) {
+                    if (color[to] == -1) continue;
+                    if (seen[color[to]]) continue;
+                    seen[color[to]] = 1;
+                    saturation++;
+                }
+
+                const int degree = static_cast<int>(adj[v].size());
+                if (
+                    saturation > best_saturation ||
+                    (saturation == best_saturation && degree > best_degree)
+                ) {
+                    best = v;
+                    best_saturation = saturation;
+                    best_degree = degree;
+                }
+            }
+
+            V<int> forbidden(k, 0);
+            for (const int to : adj[best]) {
+                if (color[to] != -1) forbidden[color[to]] = 1;
+            }
+
+            rep(c, k) {
+                if (forbidden[c]) continue;
+
+                color[best] = c;
+                if (self(colored_count + 1)) return true;
+                color[best] = -1;
+            }
+
+            return false;
+        });
+
+        return dfs(0);
+    }
+};
+
 // ============== 解答用 ==============
 #ifndef MULTI_TEST_CASES
 #define MULTI_TEST_CASES 0
 #endif
 
 void solve() {
-
 }
 
 int main() {

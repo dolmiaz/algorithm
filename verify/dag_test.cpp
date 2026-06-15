@@ -1,4 +1,4 @@
-#include "../library/dag.h"
+#include "../library/dag.hpp"
 
 namespace {
 bool valid_topological_order(const Graph &g, const V<int> &order) {

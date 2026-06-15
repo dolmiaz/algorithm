@@ -10,7 +10,7 @@ long long count_subarrays_sum_at_most_nonnegative(const V<T>& a, long long K) {
     long long sum = 0;
     int l = 0;
 
-    for (int r = 0; r < (int)a.size(); r++) {
+    for (int r = 0; r < static_cast<int>(a.size()); r++) {
         sum += a[r];
 
         while (sum > K) {
