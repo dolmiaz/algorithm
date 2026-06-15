@@ -340,11 +340,11 @@ Fenwick Tree / Binary Indexed Tree による 1 次元配列の点更新・区間
 | `modint.hpp` | `static_modint<MOD>`, `dynamic_modint<ID>`, `modint998244353`, `modint1000000007` |
 | `number_theory.hpp` | `ext_gcd`, `mod_inv`, `divisors`, `factorize`, `euler_phi`, `sieve_primes` |
 | `crt.hpp` | `crt_pair`, `crt`。矛盾時は `{0, 0}` |
-| `floor_sum.hpp` | `floor_sum(n, m, a, b)` |
+| `floor_sum.hpp` | `floor_sum(n, m, a, b)`。`0 <= n`, `1 <= m`, `0 <= a,b` 前提 |
 | `mobius.hpp` | `mobius_table(n)` |
 | `prime_test.hpp` | 64-bit deterministic Miller-Rabin `is_prime64(n)` |
 | `pollard_rho.hpp` | `pollard_rho(n)`, `factorize_pollard(n)` |
-| `discrete_log.hpp` | 拡張 Baby-step Giant-step `discrete_log(a, b, mod)`。解なしは `-1` |
+| `discrete_log.hpp` | 拡張 Baby-step Giant-step `discrete_log(a, b, mod)`。最小非負解を返し、解なしは `-1` |
 | `primitive_root.hpp` | 素数 mod 用 `primitive_root(mod)` |
 | `garner.hpp` | pairwise-coprime moduli 用 `garner(r, m, mod)` |
 

@@ -4,9 +4,12 @@
 
 [[nodiscard]] inline ll discrete_log(ll a, ll b, ll m) {
     a %= m;
+    if (a < 0) a += m;
     b %= m;
     if (b < 0) b += m;
     if (m == 1) return 0;
+    if (b == 1) return 0;
+    if (a == 0) return b == 0 ? 1 : -1;
 
     ll add = 0, k = 1;
     for (ll g = gcd(a, m); g > 1; g = gcd(a, m)) {

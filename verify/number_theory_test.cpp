@@ -36,6 +36,9 @@ int main() {
     assert((pf == V<ull>{71, 839, 1471, 6857}));
 
     assert(discrete_log(2, 8, 13) == 3);
+    assert(discrete_log(2, 1, 13) == 0);
+    assert(discrete_log(0, 1, 7) == 0);
+    assert(discrete_log(0, 0, 7) == 1);
     assert(discrete_log(2, 3, 4) == -1);
 
     assert(primitive_root(998244353) == 3);

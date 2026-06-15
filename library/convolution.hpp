@@ -8,6 +8,7 @@
 template <class Mint>
 void ntt(V<Mint>& a, const bool invert) {
     const int n = static_cast<int>(a.size());
+    if (n <= 1) return;
     static V<int> rev;
     static V<Mint> roots{0, 1};
 

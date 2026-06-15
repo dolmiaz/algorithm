@@ -91,7 +91,7 @@ def collect_headers(path: Path, seen: set[Path], order: list[Path]) -> None:
         return
 
     seen.add(path)
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     for line in text.splitlines():
         match = LOCAL_INCLUDE_RE.match(line)
         if match:
@@ -102,7 +102,7 @@ def collect_headers(path: Path, seen: set[Path], order: list[Path]) -> None:
 
 def body_without_guards(path: Path, system_includes: set[str]) -> str:
     lines: list[str] = []
-    for line in path.read_text().splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         if line.strip() == "#pragma once":
             continue
         if LOCAL_INCLUDE_RE.match(line):
@@ -124,7 +124,7 @@ def body_without_guards(path: Path, system_includes: set[str]) -> str:
 
 
 def solution_section() -> str:
-    text = MAIN_CPP.read_text()
+    text = MAIN_CPP.read_text(encoding="utf-8")
     pos = text.find(SOLUTION_MARKER)
     if pos == -1:
         raise RuntimeError(f"{SOLUTION_MARKER!r} not found in main.cpp")
@@ -178,7 +178,7 @@ def main() -> None:
         + solution_section()
     )
 
-    MAIN_CPP.write_text(bundled)
+    MAIN_CPP.write_text(bundled, encoding="utf-8")
 
 
 if __name__ == "__main__":

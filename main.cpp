@@ -24,10 +24,8 @@ using namespace std;
 using ll = long long;
 using ull = unsigned long long;
 using ld = long double;
-template <typename T>
-using V = vector<T>;
-template <typename T>
-using minpq = priority_queue<T, V<T>, greater<T>>;
+template <typename T> using V = vector<T>;
+template <typename T> using minpq = priority_queue<T, V<T>, greater<T>>;
 using maxpq_ll = priority_queue<ll>;
 using pii = pair<int, int>;
 using pll = pair<ll, ll>;
@@ -55,41 +53,30 @@ constexpr ll modNum = 998244353;
 
 
 // ============== ユーティリティ ==============
-template <class T, class U>
-bool chmin(T& a, const U& b) {
+template <class T, class U> bool chmin(T &a, const U &b) {
     if (a > b) {
         a = b;
         return true;
     }
     return false;
 }
-
-template <class T, class U>
-bool chmax(T& a, const U& b) {
+template <class T, class U> bool chmax(T &a, const U &b) {
     if (a < b) {
         a = b;
         return true;
     }
     return false;
 }
-
-template <class T>
-int sgn(T x) { return (x > 0) - (x < 0); }
-
-template <class T>
-T clampv(T x, T lo, T hi) { return x < lo ? lo : (x > hi ? hi : x); }
-
-template <class T>
-T ceil_div(T a, T b) {
+template <class T> int sgn(T x) { return (x > 0) - (x < 0); }
+template <class T> T clampv(T x, T lo, T hi) { return x < lo ? lo : (x > hi ? hi : x); }
+template <class T> T ceil_div(T a, T b) {
     if (b < 0)
         a = -a, b = -b;
     if (a >= 0)
         return (a + b - 1) / b;
     return a / b;
 }
-
-template <class T>
-T floor_div(T a, T b) {
+template <class T> T floor_div(T a, T b) {
     if (b < 0)
         a = -a, b = -b;
     if (a >= 0)
@@ -98,60 +85,43 @@ T floor_div(T a, T b) {
 }
 
 // ============== printヘルパ ==============
-template <class T>
-void print_one(const T& x) { cout << x; }
-
-template <class T, class... Ts>
-void print_one(const T& x, const Ts&... xs) {
+template <class T> void print_one(const T &x) { cout << x; }
+template <class T, class... Ts> void print_one(const T &x, const Ts &...xs) {
     cout << x << ' ';
     print_one(xs...);
 }
-
 inline void println() {
     cout << '\n';
 }
-
-template <class T, class... Ts>
-void println(const T& x, const Ts&... xs) {
+template <class T, class... Ts> void println(const T &x, const Ts &...xs) {
     cout << x;
     ((cout << ' ' << xs), ...);
     cout << '\n';
 }
-
-template <class T>
-void printAll(const V<T>& t) {
+template <class T> void printAll(const V<T> &t) {
     rep(i, t.size()) cout << t[i] << '\n';
 }
-
 inline void yes(const bool c = true) { cout << (c ? "Yes" : "No") << '\n'; }
 inline void YES(const bool c = true) { cout << (c ? "YES" : "NO") << '\n'; }
 
 // ============== 数学ヘルパ ==============
 // Sum of 0...(x-1)
-template <class T>
-T tri0(T x) {
+template <class T> T tri0(T x) {
     return x * (x - 1) / 2;
 }
-
 // Sum of 1...x
-template <class T>
-T tri1(T x) {
+template <class T> T tri1(T x) {
     return (x + 1) * x / 2;
 }
 
 // ============== 再帰ラムダ ==============
-template <class F>
-struct y_combinator {
+template <class F> struct y_combinator {
     F f;
-
-    template <class... Args>
-    decltype(auto) operator()(Args&&... args) const {
+    template <class... Args> decltype(auto) operator()(Args &&...args) const {
         return f(*this, std::forward<Args>(args)...);
     }
 };
-
-template <class F>
-y_combinator<F> yc(F&& f) { return {std::forward<F>(f)}; }
+template <class F> y_combinator<F> yc(F &&f) { return {std::forward<F>(f)}; }
 
 // ===== Grid =====
 
@@ -164,8 +134,8 @@ inline constexpr array<int, 4> DR4 = {-1, 0, 1, 0};
 inline constexpr array<int, 4> DC4 = {0, 1, 0, -1};
 inline constexpr array<char, 4> DIR4 = {'U', 'R', 'D', 'L'};
 inline constexpr array<char, 4> dir4 = {'u', 'r', 'd', 'l'};
-inline constexpr array<int, 8> DR8 = {-1, -1, 0, 1, 1, 1, 0, -1};
-inline constexpr array<int, 8> DC8 = {0, 1, 1, 1, 0, -1, -1, -1};
+inline constexpr array<int, 8> DR8 = {-1, -1, 0, 1, 1,  1, 0, -1};
+inline constexpr array<int, 8> DC8 = { 0,  1, 1, 1, 0, -1, -1, -1};
 inline const array<string, 8> DIR8 = {"U", "UR", "R", "DR", "D", "DL", "L", "UL"};
 inline const array<string, 8> dir8 = {"u", "ur", "r", "dr", "d", "dl", "l", "ul"};
 
@@ -182,28 +152,26 @@ struct Grid {
 
     Grid() = default;
 
-    Grid(const int H_, const int W_, const char block_ = '#', const char wall_ = '1') :
-        H(H_), W(W_),
-        cell(H, string(W, '.')),
-        v(H, string(max(0, W - 1), '0')),
-        h(max(0, H - 1), string(W, '0')),
-        block(block_), wall(wall_) {
-    }
+    Grid(const int H_, const int W_, const char block_ = '#', const char wall_ = '1'):
+    H(H_), W(W_),
+    cell(H, string(W, '.')),
+    v(H, string(max(0, W - 1), '0')),
+    h(max(0, H - 1), string(W, '0')),
+    block(block_), wall(wall_) {}
 
     Grid(
         const int H_,
         const int W_,
-        const V<string>& v_,
-        const V<string>& h_,
+        const V<string> &v_,
+        const V<string> &h_,
         const char block_ = '#',
         const char wall_ = '1'
-    ) : H(H_), W(W_),
+    ):  H(H_), W(W_),
         cell(H_, string(W_, '.')),
         v(v_),
         h(h_),
         block(block_),
-        wall(wall_) {
-    }
+        wall(wall_) {}
 
     [[nodiscard]] bool in(const int i, const int j) const {
         return in_grid(i, j, H, W);
@@ -293,7 +261,7 @@ inline Grid read_grid_with_walls(const int H, const int W, const char wall = '1'
 
 
 struct GridBFS {
-    const Grid* grid = nullptr;
+    const Grid *grid = nullptr;
     pii source = {-1, -1};
     V<V<int>> dist;
     V<V<pii>> parent;
@@ -301,11 +269,11 @@ struct GridBFS {
 
     GridBFS() = default;
 
-    GridBFS(const Grid& g, const pii& s) {
+    GridBFS(const Grid &g, const pii& s) {
         build(g, s);
     }
 
-    void build(const Grid& g, const pii& s) {
+    void build(const Grid &g, const pii& s) {
         grid = &g;
         source = s;
 
@@ -395,14 +363,13 @@ struct PrefixSum1D {
     int size{};
     V<T> ps;
 
-    PrefixSum1D() : size(0), ps(1, T{}) {
-    }
+    PrefixSum1D() : size(0), ps(1, T{}) {}
 
-    explicit PrefixSum1D(const V<T>& vec) {
+    explicit PrefixSum1D(const V<T> &vec) {
         build(vec);
     }
 
-    void build(const V<T>& vec) {
+    void build(const V<T> &vec) {
         size = static_cast<int>(vec.size());
         ps.assign(size + 1, T{});
         rep(i, size) ps[i + 1] = ps[i] + vec[i];
@@ -422,14 +389,13 @@ struct PrefixSum2D {
     int H{}, W{};
     V<V<T>> ps;
 
-    PrefixSum2D() : H(0), W(0), ps(1, V<T>(1, T{})) {
-    }
+    PrefixSum2D() : H(0), W(0), ps(1, V<T>(1, T{})) {}
 
-    explicit PrefixSum2D(const V<V<T>>& grid) {
+    explicit PrefixSum2D(const V<V<T>> &grid) {
         build(grid);
     }
 
-    void build(const V<V<T>>& grid) {
+    void build(const V<V<T>> &grid) {
         H = static_cast<int>(grid.size());
         W = H == 0 ? 0 : static_cast<int>(grid[0].size());
         ps.assign(H + 1, V<T>(W + 1, T{}));
@@ -452,14 +418,13 @@ struct PrefixMax1D {
     int size{};
     V<T> pref, suff;
 
-    PrefixMax1D() : size(0), pref(1, numeric_limits<T>::lowest()), suff(1, numeric_limits<T>::lowest()) {
-    }
+    PrefixMax1D() : size(0), pref(1, numeric_limits<T>::lowest()), suff(1, numeric_limits<T>::lowest()) {}
 
-    explicit PrefixMax1D(const V<T>& vec) {
+    explicit PrefixMax1D(const V<T> &vec) {
         build(vec);
     }
 
-    void build(const V<T>& vec) {
+    void build(const V<T> &vec) {
         size = static_cast<int>(vec.size());
         pref.assign(size + 1, numeric_limits<T>::lowest());
         suff.assign(size + 1, numeric_limits<T>::lowest());
@@ -484,8 +449,7 @@ struct Imos1D {
     V<T> diff;
     bool built = false;
 
-    explicit Imos1D(int _n) : n(_n), diff(_n + 1, T{}) {
-    }
+    explicit Imos1D(int _n) : n(_n), diff(_n + 1, T{}) {}
 
     // [l, r)にxを加算
     void add(const int l, const int r, const T x) {
@@ -696,9 +660,7 @@ struct static_modint {
     [[nodiscard]] static constexpr int mod() { return MOD; }
 
     static_modint() = default;
-
-    template <class T>
-    static_modint(T x) {
+    template <class T> static_modint(T x) {
         ll y = static_cast<ll>(x % static_cast<T>(MOD));
         if (y < 0) y += MOD;
         v = static_cast<int>(y);
@@ -711,18 +673,15 @@ struct static_modint {
         if (v >= MOD) v -= MOD;
         return *this;
     }
-
     mint& operator-=(const mint& rhs) {
         v -= rhs.v;
         if (v < 0) v += MOD;
         return *this;
     }
-
     mint& operator*=(const mint& rhs) {
         v = static_cast<int>(static_cast<ll>(v) * rhs.v % MOD);
         return *this;
     }
-
     mint& operator/=(const mint& rhs) { return *this *= rhs.inv(); }
 
     [[nodiscard]] mint operator+() const { return *this; }
@@ -759,7 +718,6 @@ struct static_modint {
     }
 
     friend ostream& operator<<(ostream& os, const mint& x) { return os << x.v; }
-
     friend istream& operator>>(istream& is, mint& x) {
         ll input_value;
         is >> input_value;
@@ -771,21 +729,17 @@ struct static_modint {
 template <int ID>
 struct dynamic_modint {
     using mint = dynamic_modint;
-
     static int& mod_ref() {
         static int m = 998244353;
         return m;
     }
-
     int v = 0;
 
     [[nodiscard]] static int mod() { return mod_ref(); }
     static void set_mod(const int m) { mod_ref() = m; }
 
     dynamic_modint() = default;
-
-    template <class T>
-    dynamic_modint(T x) {
+    template <class T> dynamic_modint(T x) {
         const int m = mod();
         ll y = static_cast<ll>(x % static_cast<T>(m));
         if (y < 0) y += m;
@@ -799,18 +753,15 @@ struct dynamic_modint {
         if (v >= mod()) v -= mod();
         return *this;
     }
-
     mint& operator-=(const mint& rhs) {
         v -= rhs.v;
         if (v < 0) v += mod();
         return *this;
     }
-
     mint& operator*=(const mint& rhs) {
         v = static_cast<int>(static_cast<ll>(v) * rhs.v % mod());
         return *this;
     }
-
     mint& operator/=(const mint& rhs) { return *this *= rhs.inv(); }
 
     [[nodiscard]] mint operator+() const { return *this; }
@@ -847,7 +798,6 @@ struct dynamic_modint {
     }
 
     friend ostream& operator<<(ostream& os, const mint& x) { return os << x.v; }
-
     friend istream& operator>>(istream& is, mint& x) {
         ll input_value;
         is >> input_value;
@@ -860,7 +810,7 @@ using modint998244353 = static_modint<998244353>;
 using modint1000000007 = static_modint<1000000007>;
 
 // ===== bundled from library/number_theory.hpp =====
-[[nodiscard]] inline ll ext_gcd(ll a, ll b, ll& x, ll& y) {
+[[nodiscard]] inline ll ext_gcd(ll a, ll b, ll &x, ll &y) {
     if (b == 0) {
         x = (a >= 0 ? 1 : -1);
         y = 0;
@@ -910,7 +860,7 @@ using modint1000000007 = static_modint<1000000007>;
 
 [[nodiscard]] inline ll euler_phi(ll n) {
     ll res = n;
-    for (const auto& [p, _] : factorize(n)) {
+    for (const auto &[p, _] : factorize(n)) {
         res = res / p * (p - 1);
     }
     return res;
@@ -1106,9 +1056,12 @@ inline void factorize_pollard_dfs(ull n, V<ull>& res) {
 // ===== bundled from library/discrete_log.hpp =====
 [[nodiscard]] inline ll discrete_log(ll a, ll b, ll m) {
     a %= m;
+    if (a < 0) a += m;
     b %= m;
     if (b < 0) b += m;
     if (m == 1) return 0;
+    if (b == 1) return 0;
+    if (a == 0) return b == 0 ? 1 : -1;
 
     ll add = 0, k = 1;
     for (ll g = gcd(a, m); g > 1; g = gcd(a, m)) {
@@ -1339,6 +1292,7 @@ struct XorBasis {
 template <class Mint>
 void ntt(V<Mint>& a, const bool invert) {
     const int n = static_cast<int>(a.size());
+    if (n <= 1) return;
     static V<int> rev;
     static V<Mint> roots{0, 1};
 
@@ -1504,13 +1458,11 @@ struct FormalPowerSeries : V<Mint> {
         rep(i, b.size()) a[i] += b[i];
         return a;
     }
-
     [[nodiscard]] friend FPS operator-(FPS a, const FPS& b) {
         if (a.size() < b.size()) a.resize(b.size());
         rep(i, b.size()) a[i] -= b[i];
         return a;
     }
-
     [[nodiscard]] friend FPS operator*(const FPS& a, const FPS& b) {
         auto c = convolution_ntt(V<Mint>(a.begin(), a.end()), V<Mint>(b.begin(), b.end()));
         return FPS(c.begin(), c.end());
@@ -1522,8 +1474,7 @@ template <class T>
 [[nodiscard]] V<T> kitamasa_combine(const V<T>& a, const V<T>& b, const V<T>& coef) {
     const int d = static_cast<int>(coef.size());
     V<T> tmp(2 * d - 1, T(0));
-    rep(i, d)
-        rep(j, d) tmp[i + j] += a[i] * b[j];
+    rep(i, d) rep(j, d) tmp[i + j] += a[i] * b[j];
     for (int i = 2 * d - 2; i >= d; i--) {
         rep(j, d) tmp[i - d + j] += tmp[i] * coef[j];
     }
@@ -1579,8 +1530,7 @@ template <class Mint>
             b = t;
             bb = d;
             m = 1;
-        }
-        else {
+        } else {
             m++;
         }
     }
@@ -1678,16 +1628,16 @@ struct Compress {
 
     Compress() = default;
 
-    explicit Compress(const V<T>& v) {
+    explicit Compress(const V<T> &v) {
         xs = v;
         build();
     }
 
-    void add(const T& x) {
+    void add(const T &x) {
         xs.push_back(x);
     }
 
-    void add(const V<T>& vec) {
+    void add(const V<T> &vec) {
         xs.insert(xs.end(), all(vec));
     }
 
@@ -1720,33 +1670,33 @@ struct BinarySearch {
 
     BinarySearch() = default;
 
-    explicit BinarySearch(const V<T>& sorted_vec) {
+    explicit BinarySearch(const V<T> &sorted_vec) {
         build(sorted_vec);
     }
 
-    void build(const V<T>& sorted_vec) {
+    void build(const V<T> &sorted_vec) {
         a = sorted_vec;
     }
 
-    int index(const T& x) const {
+    int index(const T &x) const {
         const int pos = lower_bound(all(a), x) - a.begin();
         if (pos < static_cast<int>(a.size()) && a[pos] == x) return pos;
         return -1;
     }
 
-    int first_ge(const T& x) const {
+    int first_ge(const T &x) const {
         return lower_bound(all(a), x) - a.begin();
     }
 
-    int first_gt(const T& x) const {
+    int first_gt(const T &x) const {
         return upper_bound(all(a), x) - a.begin();
     }
 
-    int last_lt(const T& x) const {
+    int last_lt(const T &x) const {
         return first_ge(x) - 1;
     }
 
-    int last_le(const T& x) const {
+    int last_le(const T &x) const {
         return first_gt(x) - 1;
     }
 
@@ -1783,7 +1733,7 @@ struct DSU {
         group_count = n;
     }
 
-    int leader(const int x) {
+    int leader(const int x){
         if (parent_or_size[x] < 0) return x;
         return parent_or_size[x] = leader(parent_or_size[x]);
     }
@@ -1830,12 +1780,8 @@ struct DSU {
 struct Edge {
     int to;
     ll w;
-
-    Edge() : to(0), w(1) {
-    }
-
-    Edge(int _to, ll _w = 1) : to(_to), w(_w) {
-    }
+    Edge() : to(0), w(1) {}
+    Edge(int _to, ll _w = 1) : to(_to), w(_w) {}
 };
 
 struct Graph {
@@ -1846,13 +1792,11 @@ struct Graph {
 
     Graph() = default;
 
-    explicit Graph(const int n, const bool _undirected = true, const bool _weighted = false,
-                   const bool _one_indexed = true)
+    explicit Graph(const int n, const bool _undirected = true, const bool _weighted = false, const bool _one_indexed = true)
         : graph(n),
           undirected(_undirected),
           weighted(_weighted),
-          one_indexed(_one_indexed) {
-    }
+          one_indexed(_one_indexed) {}
 
     [[nodiscard]] int size() const {
         return static_cast<int>(graph.size());
@@ -1895,8 +1839,7 @@ inline Graph read_graph(
 
         if (weighted) {
             cin >> a >> b >> w;
-        }
-        else {
+        } else {
             cin >> a >> b;
         }
 
@@ -1913,30 +1856,30 @@ inline Graph read_graph(
 // ============== グラフアルゴリズム ==============
 // ============== DFS ==============
 struct GraphDFS {
-    const Graph* graph_ref = nullptr;
+    const Graph *graph_ref = nullptr;
     V<int> used, parent, tin, tout, comp_id, order, post_order;
     int comp_cnt = 0;
     int timer = 0;
 
     GraphDFS() = default;
 
-    explicit GraphDFS(const Graph& graph) {
+    explicit GraphDFS(const Graph &graph) {
         build_all(graph);
     }
 
-    GraphDFS(const Graph& graph, const int s) {
+    GraphDFS(const Graph &graph, const int s) {
         build(graph, s);
     }
 
-    void build(const Graph& graph, int s) {
+    void build(const Graph &graph, int s) {
         s = graph.to_internal(s);
         init(graph);
         run_dfs(V<int>{s});
     }
 
-    void build_multi(const Graph& graph, const V<int>& starts) {
+    void build_multi(const Graph &graph, const V<int> &starts) {
         V<int> internal_starts = starts;
-        for (auto& s : internal_starts) {
+        for (auto &s : internal_starts) {
             s = graph.to_internal(s);
         }
 
@@ -1944,7 +1887,7 @@ struct GraphDFS {
         run_dfs(internal_starts);
     }
 
-    void build_all(const Graph& graph) {
+    void build_all(const Graph &graph) {
         const int n = graph.size();
         V<int> starts(n);
         iota(all(starts), 0);
@@ -1953,10 +1896,10 @@ struct GraphDFS {
         run_dfs(starts);
     }
 
-    void build_all(const Graph& graph, const V<int>& starts) {
+    void build_all(const Graph &graph, const V<int> &starts) {
         const int n = graph.size();
         V<int> internal_starts = starts;
-        for (auto& s : internal_starts) {
+        for (auto &s : internal_starts) {
             s = graph.to_internal(s);
         }
         rep(v, n) {
@@ -1967,8 +1910,8 @@ struct GraphDFS {
         run_dfs(internal_starts);
     }
 
-private:
-    void init(const Graph& graph) {
+  private:
+    void init(const Graph &graph) {
         graph_ref = &graph;
         const int n = graph.size();
 
@@ -1985,8 +1928,8 @@ private:
         timer = 0;
     }
 
-    void run_dfs(const V<int>& starts) {
-        const auto& g = graph_ref->graph;
+    void run_dfs(const V<int> &starts) {
+        const auto &g = graph_ref->graph;
 
         const auto dfs = yc([&](auto self, int v, const int p) -> void {
             used[v] = 1;
@@ -1995,7 +1938,7 @@ private:
             comp_id[v] = comp_cnt;
             order.push_back(v);
 
-            for (const auto& e : g[v]) {
+            for (const auto &e : g[v]) {
                 const int to = e.to;
                 if (used[to]) continue;
                 self(to, v);
@@ -2015,19 +1958,19 @@ private:
 
 // ============== BFS ==============
 struct GraphBFS {
-    const Graph* graph_ref = nullptr;
+    const Graph *graph_ref = nullptr;
     V<int> dist, parent;
     V<int> order, source;
 
     GraphBFS() = default;
 
-    GraphBFS(const Graph& graph, const int s) {
+    GraphBFS(const Graph &graph, const int s) {
         build(graph, s);
     }
 
-    void build(const Graph& graph, int s) {
+    void build(const Graph &graph, int s) {
         graph_ref = &graph;
-        const auto& g = graph.graph;
+        const auto &g = graph.graph;
         const int n = graph.size();
 
         s = graph.to_internal(s);
@@ -2047,9 +1990,9 @@ struct GraphBFS {
         run_bfs(q, g);
     }
 
-    void build_multi(const Graph& graph, const V<int>& starts) {
+    void build_multi(const Graph &graph, const V<int> &starts) {
         graph_ref = &graph;
-        const auto& g = graph.graph;
+        const auto &g = graph.graph;
         const int n = graph.size();
 
         dist.assign(n, -1);
@@ -2074,7 +2017,7 @@ struct GraphBFS {
     }
 
     [[nodiscard]] V<int> path(int t) const {
-        const Graph& graph = *graph_ref;
+        const Graph &graph = *graph_ref;
         t = graph.to_internal(t);
 
         if (source[t] == -1) return {};
@@ -2090,21 +2033,21 @@ struct GraphBFS {
         if (res.back() != s) return {};
 
         reverse(all(res));
-        for (auto& v : res) {
+        for (auto &v : res) {
             v = graph.to_external(v);
         }
         return res;
     }
 
 private:
-    void run_bfs(queue<int>& q, const V<V<Edge>>& g) {
+    void run_bfs(queue<int> &q, const V<V<Edge>> &g) {
         while (!q.empty()) {
             const int v = q.front();
             q.pop();
 
             order.push_back(v);
 
-            for (const auto& e : g[v]) {
+            for (const auto &e : g[v]) {
                 const int to = e.to;
                 if (dist[to] != -1) continue;
 
@@ -2120,20 +2063,20 @@ private:
 
 // ============== 連結成分 ==============
 struct ConnectedComponents {
-    const Graph* graph_ref = nullptr;
+    const Graph *graph_ref = nullptr;
     V<int> comp_id;
     V<int> comp_size;
     int comp_cnt = 0;
 
     ConnectedComponents() = default;
 
-    explicit ConnectedComponents(const Graph& graph) {
+    explicit ConnectedComponents(const Graph &graph) {
         build(graph);
     }
 
-    void build(const Graph& graph) {
+    void build(const Graph &graph) {
         graph_ref = &graph;
-        const auto& g = graph.graph;
+        const auto &g = graph.graph;
         const int n = graph.size();
 
         comp_id.assign(n, -1);
@@ -2155,7 +2098,7 @@ struct ConnectedComponents {
 
                 sz++;
 
-                for (const auto& e : g[v]) {
+                for (const auto &e : g[v]) {
                     const int to = e.to;
 
                     if (comp_id[to] != -1) continue;
@@ -2171,14 +2114,14 @@ struct ConnectedComponents {
     }
 
     [[nodiscard]] bool same(int a, int b) const {
-        const Graph& graph = *graph_ref;
+        const Graph &graph = *graph_ref;
         a = graph.to_internal(a);
         b = graph.to_internal(b);
         return comp_id[a] == comp_id[b];
     }
 
     [[nodiscard]] int size(int v) const {
-        const Graph& graph = *graph_ref;
+        const Graph &graph = *graph_ref;
         v = graph.to_internal(v);
         return comp_size[comp_id[v]];
     }
@@ -2194,7 +2137,7 @@ struct ConnectedComponents {
 
 // ============== Dijkstra ==============
 struct Dijkstra {
-    const Graph* graph_ref = nullptr;
+    const Graph *graph_ref = nullptr;
     int source = -1;
     V<ll> dist;
     V<int> parent;
@@ -2202,13 +2145,13 @@ struct Dijkstra {
 
     Dijkstra() = default;
 
-    Dijkstra(const Graph& graph, const int s) {
+    Dijkstra(const Graph &graph, const int s) {
         build(graph, s);
     }
 
-    void build(const Graph& graph, int s) {
+    void build(const Graph &graph, int s) {
         graph_ref = &graph;
-        const auto& g = graph.graph;
+        const auto &g = graph.graph;
         const int n = graph.size();
 
         s = graph.to_internal(s);
@@ -2232,7 +2175,7 @@ struct Dijkstra {
 
             order.push_back(v);
 
-            for (const auto& e : g[v]) {
+            for (const auto &e : g[v]) {
                 const int to = e.to;
                 const ll nd = dist[v] + e.w;
 
@@ -2247,7 +2190,7 @@ struct Dijkstra {
     }
 
     [[nodiscard]] ll distance(int t) const {
-        const Graph& graph = *graph_ref;
+        const Graph &graph = *graph_ref;
         t = graph.to_internal(t);
         return dist[t];
     }
@@ -2257,7 +2200,7 @@ struct Dijkstra {
     }
 
     [[nodiscard]] V<int> path(int t) const {
-        const Graph& graph = *graph_ref;
+        const Graph &graph = *graph_ref;
         t = graph.to_internal(t);
 
         if (t == source) return V<int>{graph.to_external(source)};
@@ -2274,7 +2217,7 @@ struct Dijkstra {
 
         reverse(all(res));
 
-        for (auto& v : res) {
+        for (auto &v : res) {
             v = graph.to_external(v);
         }
 
@@ -2290,7 +2233,6 @@ struct TopologicalSort {
     bool is_dag = false;
 
     TopologicalSort() = default;
-
     explicit TopologicalSort(const Graph& g) {
         build(g);
     }
@@ -2364,14 +2306,13 @@ struct DirectedCycle {
         const auto dfs = yc([&](auto self, int v) -> bool {
             color[v] = 1;
 
-            for (const auto& e : g.graph[v]) {
+            for (const auto &e : g.graph[v]) {
                 const int to = e.to;
 
                 if (color[to] == 0) {
                     parent[to] = v;
                     if (self(to)) return true;
-                }
-                else if (color[to] == 1) {
+                } else if (color[to] == 1) {
                     cycle.push_back(to);
                     for (int x = v; x != to; x = parent[x]) {
                         cycle.push_back(x);
@@ -2395,12 +2336,11 @@ struct DirectedCycle {
     V<int> cycle_external() const {
         V<int> res = cycle;
         if (graph_ref && graph_ref->one_indexed) {
-            for (auto& v : res) v++;
+            for (auto &v : res) v++;
         }
         return res;
     }
 };
-
 struct SCC {
     const Graph* graph_ref = nullptr;
     int comp_cnt = 0;
@@ -2420,7 +2360,7 @@ struct SCC {
 
         Graph rg(n, false, g.weighted, false);
         rep(v, n) {
-            for (const auto& e : g.graph[v]) {
+            for (const auto &e : g.graph[v]) {
                 rg.add_edge_internal(e.to, v, e.w);
             }
         }
@@ -2522,13 +2462,13 @@ struct DAGLongestPath {
         }
         reverse(all(res));
 
-        for (auto& v : res) {
+        for (auto &v : res) {
             v = graph_ref->to_external(v);
         }
         return res;
     }
 
-private:
+  private:
     static T neg_inf() {
         return numeric_limits<T>::lowest() / T(4);
     }
@@ -2547,7 +2487,7 @@ private:
         for (const int v : order) {
             if (dist[v] == neg_inf()) continue;
 
-            for (const auto& e : g.graph[v]) {
+            for (const auto &e : g.graph[v]) {
                 const int to = e.to;
                 const T nd = dist[v] + static_cast<T>(e.w);
 
@@ -2562,7 +2502,7 @@ private:
 
 // ===== bundled from library/coloring.hpp =====
 struct KColoring {
-    const Graph* graph_ref = nullptr;
+    const Graph *graph_ref = nullptr;
     int k = 0;
     V<int> color;
     bool found = false;
@@ -2605,7 +2545,7 @@ struct KColoring {
         return true;
     }
 
-private:
+  private:
     V<V<int>> build_undirected_adjacency(const Graph& g) const {
         const int n = g.size();
         V<V<int>> adj(n);
@@ -2685,6 +2625,7 @@ private:
 
         return dfs(0);
     }
+
 };
 
 // ============== 解答用 ==============
@@ -2692,7 +2633,45 @@ private:
 #define MULTI_TEST_CASES 0
 #endif
 
+Graph build_Gnk(const int n, const int k) {
+    Graph g(n, true, false, false);
+
+    for (int i = 1; i <= n; i++) {
+        if (k >= i) continue;
+
+        const int start = (k == 0 ? 2 * i : i + k);
+
+        for (int j = start; j <= n; j += i) {
+            g.add_edge_internal(i - 1, j - 1);
+        }
+    }
+
+    return g;
+}
+
+bool not_three_colorable(const int n, const int k) {
+    Graph g = build_Gnk(n, k);
+    KColoring solver(g, 3);
+    return !solver.found;
+}
+
+int find_M(const int k) {
+    int ng = 0;
+    int ok = 1;
+
+    while (!not_three_colorable(ok, k)) {
+        ng = ok;
+        ok *= 2;
+    }
+
+    return BinarySearch<int>::min_true(ok, ng, [&](const int n) {
+        return not_three_colorable(n, k);
+    });
+}
+
 void solve() {
+    constexpr int k = 1;
+    cout << find_M(k) << '\n';
 }
 
 int main() {

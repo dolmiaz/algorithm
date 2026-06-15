@@ -17,6 +17,10 @@ int main() {
     assert(c[2].val() == 22);
     assert(c[3].val() == 15);
 
+    auto single = convolution_ntt(V<mint>{7}, V<mint>{6});
+    assert(single.size() == 1);
+    assert(single[0].val() == 42);
+
     auto cf = convolution_fft(V<ll>{1, 2, 3}, V<ll>{4, 5});
     assert((cf == V<ll>{4, 13, 22, 15}));
 
