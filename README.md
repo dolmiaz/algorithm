@@ -20,6 +20,7 @@ C++17 向けの競技プログラミング用テンプレート集です。
 - [Linear Algebra / Polynomial / Bit Transform](#linear-algebra--polynomial--bit-transform)
 - [compress.hpp](#compresshpp)
 - [binary_search.hpp](#binary_searchhpp)
+- [string.hpp](#stringhpp)
 - [dsu.hpp](#dsuhpp)
 - [fenwick.hpp](#fenwickhpp)
 - [graph.hpp](#graphhpp)
@@ -61,6 +62,7 @@ algorithm/
 │   ├── fps.hpp
 │   ├── compress.hpp
 │   ├── binary_search.hpp
+│   ├── string.hpp
 │   ├── dsu.hpp
 │   ├── graph.hpp
 │   ├── graph_search.hpp
@@ -72,7 +74,7 @@ algorithm/
 └── verify/
 ```
 
-`library/segtree.hpp`, `library/string.hpp`, `library/tree.hpp` は現時点では未実装です。
+`library/segtree.hpp`, `library/tree.hpp` は現時点では未実装です。
 
 ## Submission Template
 
@@ -108,6 +110,7 @@ python3 scripts/bundle_main.py
 | Math / Number Theory | `math.hpp`, `modint.hpp`, `number_theory.hpp`, `crt.hpp`, `floor_sum.hpp`, `mobius.hpp`, `prime_test.hpp`, `pollard_rho.hpp`, `discrete_log.hpp`, `primitive_root.hpp`, `garner.hpp` |
 | Linear Algebra / Polynomial | `matrix.hpp`, `linear_algebra.hpp`, `xor_basis.hpp`, `convolution.hpp`, `fps.hpp`, `linear_recurrence.hpp`, `berlekamp_massey.hpp`, `subset_transform.hpp`, `fwht.hpp` |
 | Index / Search | `compress.hpp`, `binary_search.hpp` |
+| String | `string.hpp` |
 | Set / Connectivity | `dsu.hpp` |
 | Graph | `graph.hpp`, `graph_search.hpp`, `shortest_path.hpp`, `dag.hpp`, `coloring.hpp` |
 
@@ -284,6 +287,16 @@ python3 scripts/bundle_main.py
 | `BinarySearch::max_true(ok, ng, pred)` | `pred(ok) == true`, `pred(ng) == false` のとき、条件を満たす最大側の値を返す |
 
 配列は昇順ソート済みであることを前提にします。`min_true/max_true` は整数型の探索幅で、`ok` と `ng` が異なる側にある単調述語を前提にします。
+
+## string.hpp
+
+文字列や配列に対する小さな補助関数を提供します。
+
+| Name | Specification |
+| --- | --- |
+| `is_palindrome(s)` | `s` 全体が回文なら `true` |
+
+`is_palindrome` は `size()` と `operator[]` を持ち、要素同士を `!=` で比較できる列を前提にします。
 
 ## dsu.hpp
 

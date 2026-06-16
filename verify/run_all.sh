@@ -17,6 +17,7 @@ tests=(
     verify/convolution_fps_test.cpp
     verify/bit_transform_test.cpp
     verify/compress.cpp
+    verify/string_test.cpp
     verify/dsu_test.cpp
     verify/graph_search_test.cpp
     verify/shortest_path_test.cpp

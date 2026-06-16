@@ -27,6 +27,7 @@
 #include "../library/fwht.hpp"
 #include "../library/compress.hpp"
 #include "../library/binary_search.hpp"
+#include "../library/string.hpp"
 #include "../library/dsu.hpp"
 #include "../library/graph.hpp"
 #include "../library/graph_search.hpp"

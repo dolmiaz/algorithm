@@ -1721,6 +1721,18 @@ struct BinarySearch {
     }
 };
 
+// ===== String =====
+
+// ===== bundled from library/string.hpp =====
+template <class T>
+bool is_palindrome(const T& s) {
+    int n = static_cast<int>(s.size());
+    rep(i, n / 2) {
+        if (s[i] != s[n - 1 - i]) return false;
+    }
+    return true;
+}
+
 // ===== Set / Connectivity =====
 
 // ===== bundled from library/dsu.hpp =====
@@ -2633,45 +2645,8 @@ struct KColoring {
 #define MULTI_TEST_CASES 0
 #endif
 
-Graph build_Gnk(const int n, const int k) {
-    Graph g(n, true, false, false);
-
-    for (int i = 1; i <= n; i++) {
-        if (k >= i) continue;
-
-        const int start = (k == 0 ? 2 * i : i + k);
-
-        for (int j = start; j <= n; j += i) {
-            g.add_edge_internal(i - 1, j - 1);
-        }
-    }
-
-    return g;
-}
-
-bool not_three_colorable(const int n, const int k) {
-    Graph g = build_Gnk(n, k);
-    KColoring solver(g, 3);
-    return !solver.found;
-}
-
-int find_M(const int k) {
-    int ng = 0;
-    int ok = 1;
-
-    while (!not_three_colorable(ok, k)) {
-        ng = ok;
-        ok *= 2;
-    }
-
-    return BinarySearch<int>::min_true(ok, ng, [&](const int n) {
-        return not_three_colorable(n, k);
-    });
-}
-
 void solve() {
-    constexpr int k = 1;
-    cout << find_M(k) << '\n';
+
 }
 
 int main() {

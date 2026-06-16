@@ -60,6 +60,9 @@ HEADER_GROUPS = [
         "compress.hpp",
         "binary_search.hpp",
     ]),
+    ("String", [
+        "string.hpp",
+    ]),
     ("Set / Connectivity", [
         "dsu.hpp",
     ]),
