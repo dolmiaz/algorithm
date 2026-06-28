@@ -17,6 +17,51 @@ inline bool in_grid(const int i, const int j, const int H, const int W) {
     return 0 <= i && i < H && 0 <= j && j < W;
 }
 
+struct BoundingBox {
+    int u{}, d{}, l{}, r{};
+    bool empty = true;
+
+    [[nodiscard]] int height() const {
+        return d - u;
+    }
+
+    [[nodiscard]] int width() const {
+        return r - l;
+    }
+};
+
+template <
+    class Pred,
+    enable_if_t<is_convertible_v<invoke_result_t<Pred, char>, bool>, nullptr_t> = nullptr
+>
+BoundingBox bounding_box(const V<string> &grid, Pred pred) {
+    const int H = grid.size();
+    const int W = H ? grid[0].size() : 0;
+
+    int u = H, d = -1, l = W, r = -1;
+
+    rep(i, H) {
+        rep(j, W) {
+            if (!pred(grid[i][j])) continue;
+
+            u = min(u, i);
+            d = max(d, i + 1);
+            l = min(l, j);
+            r = max(r, j + 1);
+        }
+    }
+
+    if (d == -1) return {0, 0, 0, 0, true};
+
+    return {u, d, l, r, false};
+}
+
+inline BoundingBox bounding_box(const V<string> &grid, const char target = '#') {
+    return bounding_box(grid, [target](const char c) {
+        return c == target;
+    });
+}
+
 struct Grid {
     int H{}, W{};
     V<string> cell;

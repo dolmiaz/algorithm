@@ -4,6 +4,60 @@
 #include <sstream>
 
 int main() {
+    V<string> box_grid = {
+        "....X",
+        ".##..",
+        "..#..",
+        ".....",
+    };
+    BoundingBox hash_box = bounding_box(box_grid);
+    assert(!hash_box.empty);
+    assert(hash_box.u == 1);
+    assert(hash_box.d == 3);
+    assert(hash_box.l == 1);
+    assert(hash_box.r == 3);
+    assert(hash_box.height() == 2);
+    assert(hash_box.width() == 2);
+
+    BoundingBox x_box = bounding_box(box_grid, 'X');
+    assert(!x_box.empty);
+    assert(x_box.u == 0);
+    assert(x_box.d == 1);
+    assert(x_box.l == 4);
+    assert(x_box.r == 5);
+    assert(x_box.height() == 1);
+    assert(x_box.width() == 1);
+
+    BoundingBox filled_box = bounding_box(box_grid, [](const char c) {
+        return c != '.';
+    });
+    assert(!filled_box.empty);
+    assert(filled_box.u == 0);
+    assert(filled_box.d == 3);
+    assert(filled_box.l == 1);
+    assert(filled_box.r == 5);
+    assert(filled_box.height() == 3);
+    assert(filled_box.width() == 4);
+
+    BoundingBox none_box = bounding_box(box_grid, 'A');
+    assert(none_box.empty);
+    assert(none_box.u == 0);
+    assert(none_box.d == 0);
+    assert(none_box.l == 0);
+    assert(none_box.r == 0);
+    assert(none_box.height() == 0);
+    assert(none_box.width() == 0);
+
+    BoundingBox empty_box = bounding_box(V<string>{});
+    assert(empty_box.empty);
+    assert(empty_box.height() == 0);
+    assert(empty_box.width() == 0);
+
+    BoundingBox zero_width_box = bounding_box(V<string>{"", ""});
+    assert(zero_width_box.empty);
+    assert(zero_width_box.height() == 0);
+    assert(zero_width_box.width() == 0);
+
     Grid def;
     assert(def.H == 0);
     assert(def.W == 0);

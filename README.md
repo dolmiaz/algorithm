@@ -157,9 +157,10 @@ python3 scripts/bundle_main.py
 | `clampv(x, lo, hi)` | `x` を `[lo, hi]` に収める |
 | `ceil_div(a, b)` | 整数の数学的な切り上げ除算 |
 | `floor_div(a, b)` | 整数の数学的な切り下げ除算 |
-| `println(args...)` | 引数を空白区切りで出力し、末尾に改行 |
+| `println(args...)` | 引数を空白区切りで出力し、末尾に改行。`vector` 1 個なら要素を空白区切りで出力 |
 | `println()` | 改行だけを出力 |
 | `printAll(vec)` | `vec` の各要素を 1 行ずつ出力 |
+| `printvec(vec, sep, end)` | `vec` の各要素を `sep` 区切りで出力し、末尾に `end` を出力 |
 | `yes(c)` | `c` が true なら `Yes`、false なら `No` |
 | `YES(c)` | `c` が true なら `YES`、false なら `NO` |
 | `tri0(x)` | `0 + 1 + ... + (x - 1)` |
@@ -179,6 +180,9 @@ python3 scripts/bundle_main.py
 | `DR8`, `DC8` | 上、右上、右、右下、下、左下、左、左上の順の行・列差分 |
 | `DIR8`, `dir8` | `U, UR, R, DR, D, DL, L, UL` / 小文字版 |
 | `in_grid(r, c, h, w)` | `0 <= r < h` かつ `0 <= c < w` なら true |
+| `BoundingBox` | `[u, d)`, `[l, r)` と `empty` を持つ外接矩形。`height()`, `width()` を提供 |
+| `bounding_box(grid, target)` | `grid` 内の `target` 文字の最小外接矩形を返す。既定の `target` は `#` |
+| `bounding_box(grid, pred)` | `pred(char)` が true になるマスの最小外接矩形を返す |
 | `Grid` | `H`, `W`, `cell`, `v`, `h`, `block`, `wall` を持つグリッド構造体 |
 | `Grid(H, W, block, wall)` | `cell` を `.`、壁情報 `v/h` を `0` で初期化する |
 | `Grid(H, W, v, h, block, wall)` | 壁情報を指定して初期化する。`cell` は `.` で初期化する |
@@ -194,6 +198,8 @@ python3 scripts/bundle_main.py
 | `read_grid_with_walls(H, W, wall)` | `H` 行の `v`、`H - 1` 行の `h` を読み込む |
 
 `h` または `w` が 0 以下の場合、通常の非負座標は範囲外になります。
+
+`bounding_box` は対象がない場合 `{0, 0, 0, 0, true}` を返します。入力グリッドは長方形であることを前提にします。
 
 `Grid` の方向 `d` は `0:U`, `1:R`, `2:D`, `3:L` です。`v[i][j]` は `(i,j)` と `(i,j+1)` の間、`h[i][j]` は `(i,j)` と `(i+1,j)` の間の壁を表します。`has_wall` は外周と不正な方向を壁ありとして扱います。`v/h` のサイズは `Grid` の `H/W` と整合していることを前提にします。
 

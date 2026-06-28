@@ -90,8 +90,18 @@ template <class T, class... Ts> void print_one(const T &x, const Ts &...xs) {
     cout << x << ' ';
     print_one(xs...);
 }
+template <class T> void printvec(const V<T> &a, const char sep = ' ', const char end = '\n') {
+    rep(i, a.size()) {
+        if (i) cout << sep;
+        cout << a[i];
+    }
+    cout << end;
+}
 inline void println() {
     cout << '\n';
+}
+template <class T> void println(const V<T> &a) {
+    printvec(a);
 }
 template <class T, class... Ts> void println(const T &x, const Ts &...xs) {
     cout << x;
@@ -141,6 +151,51 @@ inline const array<string, 8> dir8 = {"u", "ur", "r", "dr", "d", "dl", "l", "ul"
 
 inline bool in_grid(const int i, const int j, const int H, const int W) {
     return 0 <= i && i < H && 0 <= j && j < W;
+}
+
+struct BoundingBox {
+    int u{}, d{}, l{}, r{};
+    bool empty = true;
+
+    [[nodiscard]] int height() const {
+        return d - u;
+    }
+
+    [[nodiscard]] int width() const {
+        return r - l;
+    }
+};
+
+template <
+    class Pred,
+    enable_if_t<is_convertible_v<invoke_result_t<Pred, char>, bool>, nullptr_t> = nullptr
+>
+BoundingBox bounding_box(const V<string> &grid, Pred pred) {
+    const int H = grid.size();
+    const int W = H ? grid[0].size() : 0;
+
+    int u = H, d = -1, l = W, r = -1;
+
+    rep(i, H) {
+        rep(j, W) {
+            if (!pred(grid[i][j])) continue;
+
+            u = min(u, i);
+            d = max(d, i + 1);
+            l = min(l, j);
+            r = max(r, j + 1);
+        }
+    }
+
+    if (d == -1) return {0, 0, 0, 0, true};
+
+    return {u, d, l, r, false};
+}
+
+inline BoundingBox bounding_box(const V<string> &grid, const char target = '#') {
+    return bounding_box(grid, [target](const char c) {
+        return c == target;
+    });
 }
 
 struct Grid {

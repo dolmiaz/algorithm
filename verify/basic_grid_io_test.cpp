@@ -162,13 +162,18 @@ int main() {
     println();
     printAll(V<int>{4, 5});
     printAll(V<int>{});
+    printvec(V<int>{1, 2, 3});
+    printvec(V<string>{"aa", "bb"}, ',');
+    printvec(V<int>{}, ' ', '!');
+    println();
+    println(V<int>{7, 8, 9});
     yes();
     yes(false);
     YES();
     YES(false);
     cout.rdbuf(old_cout);
 
-    assert(out.str() == "\n1 abc 2\nx 1\n4\n5\nYes\nNo\nYES\nNO\n");
+    assert(out.str() == "\n1 abc 2\nx 1\n4\n5\n1 2 3\naa,bb\n!\n7 8 9\nYes\nNo\nYES\nNO\n");
 
     return 0;
 }

@@ -41,8 +41,18 @@ template <class T, class... Ts> void print_one(const T &x, const Ts &...xs) {
     cout << x << ' ';
     print_one(xs...);
 }
+template <class T> void printvec(const V<T> &a, const char sep = ' ', const char end = '\n') {
+    rep(i, a.size()) {
+        if (i) cout << sep;
+        cout << a[i];
+    }
+    cout << end;
+}
 inline void println() {
     cout << '\n';
+}
+template <class T> void println(const V<T> &a) {
+    printvec(a);
 }
 template <class T, class... Ts> void println(const T &x, const Ts &...xs) {
     cout << x;
