@@ -125,7 +125,7 @@ python3 scripts/bundle_main.py
 | `ld` | `long double` |
 | `V<T>` | `vector<T>` |
 | `minpq<T>` | 小さい値から取り出す `priority_queue` |
-| `maxpq_ll` | `ll` 用の大きい値から取り出す `priority_queue` |
+| `maxpq<T>` | 大きい値から取り出す `priority_queue` |
 | `pii` | `pair<int, int>` |
 | `pll` | `pair<ll, ll>` |
 | `PI` | `3.141592653589793238L` |

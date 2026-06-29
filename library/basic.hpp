@@ -20,7 +20,7 @@ using ull = unsigned long long;
 using ld = long double;
 template <typename T> using V = vector<T>;
 template <typename T> using minpq = priority_queue<T, V<T>, greater<T>>;
-using maxpq_ll = priority_queue<ll>;
+template <typename T> using maxpq = priority_queue<T>;
 using pii = pair<int, int>;
 using pll = pair<ll, ll>;
 

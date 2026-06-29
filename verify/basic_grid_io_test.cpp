@@ -74,7 +74,7 @@ int main() {
     mn.pop();
     assert(mn.top() == 1);
 
-    maxpq_ll mx;
+    maxpq<ll> mx;
     mx.push(3LL);
     mx.push(1);
     mx.push(1LL << 40);
